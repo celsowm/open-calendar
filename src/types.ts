@@ -62,7 +62,7 @@ export interface CustomViewProps {
   onSelect?: (info: DateSelectInfo) => void;
 }
 
-export type EventDisplay = "auto" | "background";
+export type EventDisplay = "auto" | "background" | "compact" | "dot" | "list-item";
 
 export interface CalendarEventInput {
   id?: string | number;

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { layoutTimedEvents } from "../core/event-layout";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
+import { EventItem } from "../components/EventItem";
 import type { BusinessHoursInput, BuiltInViewType, CalendarEvent, EventMouseInfo } from "../types";
 import type { DragState } from "../hooks/useDrag";
 import type { ResizeState } from "../hooks/useResize";
@@ -123,17 +124,13 @@ export function TimeGridView({
           return (
             <div key={day.toISOString()} className="oc-timegrid__allday-cell">
               {allDayEvents.slice(0, 2).map((event) => (
-                <button
+                <EventItem
                   key={`${event.id}-${event.start.toISOString()}`}
-                  type="button"
-                  className={`oc-event-chip ${event.className ?? ""}`}
-                  style={{ backgroundColor: event.color }}
-                  onClick={() => onEventClick?.(event)}
-                  onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
-                  onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
-                >
-                  {event.title}
-                </button>
+                  event={event}
+                  onClick={onEventClick}
+                  onMouseEnter={onEventMouseEnter}
+                  onMouseLeave={onEventMouseLeave}
+                />
               ))}
             </div>
           );

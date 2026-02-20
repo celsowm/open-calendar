@@ -2,6 +2,7 @@ import { format, isToday, startOfWeek, addDays } from "date-fns";
 import type { Locale } from "date-fns";
 import type { CSSProperties } from "react";
 import { eventIntersectsDay } from "../core/events";
+import { EventItem } from "../components/EventItem";
 import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface DayGridViewProps {
@@ -81,20 +82,13 @@ export function DayGridView({
             >
               <div className="oc-daygrid__events">
                 {visibleEvents.map((event) => (
-                  <button
+                  <EventItem
                     key={`${event.id}-${event.start.toISOString()}`}
-                    type="button"
-                    className={`oc-event-chip ${event.className ?? ""}`}
-                    style={{ backgroundColor: event.color }}
-                    onClick={(clickEvent) => {
-                      clickEvent.stopPropagation();
-                      onEventClick?.(event);
-                    }}
-                    onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
-                    onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
-                  >
-                    {event.title}
-                  </button>
+                    event={event}
+                    onClick={onEventClick}
+                    onMouseEnter={onEventMouseEnter}
+                    onMouseLeave={onEventMouseLeave}
+                  />
                 ))}
 
                 {overflowCount > 0 ? (

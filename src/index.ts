@@ -9,6 +9,7 @@ export type {
   CustomViewConfig,
   CustomViewProps,
   DateSelectInfo,
+  EventDisplay,
   EventDropInfo,
   EventResizeInfo,
   Resource

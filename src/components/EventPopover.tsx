@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
 import { useEffect, useRef } from "react";
+import { EventItem } from "./EventItem";
 import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface EventPopoverProps {
@@ -82,17 +83,13 @@ export function EventPopover({
       </div>
       <div className="oc-popover__body">
         {events.map((event) => (
-          <button
+          <EventItem
             key={`${event.id}-${event.start.toISOString()}`}
-            type="button"
-            className={`oc-event-chip ${event.className ?? ""}`}
-            style={{ backgroundColor: event.color }}
-            onClick={() => onEventClick?.(event)}
-            onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
-            onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
-          >
-            {event.title}
-          </button>
+            event={event}
+            onClick={onEventClick}
+            onMouseEnter={onEventMouseEnter}
+            onMouseLeave={onEventMouseLeave}
+          />
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Fragment, useCallback, useState } from "react";
 import { areSameDay, getWeekNumber } from "../core/date";
 import { eventIntersectsDay } from "../core/events";
 import { EventPopover } from "../components/EventPopover";
+import { EventItem } from "../components/EventItem";
 import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface PopoverState {
@@ -112,21 +113,14 @@ export function MonthView({
 
               <div className="oc-day-cell__events">
                 {visibleEvents.map((event) => (
-                  <button
+                  <EventItem
                     key={`${event.id}-${event.start.toISOString()}`}
-                    type="button"
-                    className={`oc-event-chip ${event.className ?? ""}`}
-                    style={{ backgroundColor: event.color }}
-                    onClick={(clickEvent) => {
-                      clickEvent.stopPropagation();
-                      onEventClick?.(event);
-                    }}
-                    onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
-                    onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
-                  >
-                    {!areSameDay(event.start, day) ? "-> " : ""}
-                    {event.title}
-                  </button>
+                    event={event}
+                    prefix={!areSameDay(event.start, day) ? "-> " : undefined}
+                    onClick={onEventClick}
+                    onMouseEnter={onEventMouseEnter}
+                    onMouseLeave={onEventMouseLeave}
+                  />
                 ))}
 
                 {overflowCount > 0 ? (

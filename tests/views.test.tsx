@@ -138,6 +138,82 @@ describe("WeekNumbers", () => {
   });
 });
 
+describe("Event Display Variants", () => {
+  it("renders compact display variant with compact class", () => {
+    const compactEvents: CalendarEventInput[] = [
+      {
+        id: "c1",
+        title: "Compact Meeting",
+        start: new Date(2026, 1, 10, 9, 0),
+        end: new Date(2026, 1, 10, 10, 0),
+        display: "compact"
+      }
+    ];
+    const { container } = render(
+      <Calendar events={compactEvents} initialDate={new Date(2026, 1, 1)} initialView="month" />
+    );
+    const chip = container.querySelector(".oc-event-chip--compact");
+    expect(chip).toBeTruthy();
+    expect(chip!.textContent).toBe("Compact Meeting");
+  });
+
+  it("renders dot display variant with dot indicator", () => {
+    const dotEvents: CalendarEventInput[] = [
+      {
+        id: "d1",
+        title: "Dot Event",
+        start: new Date(2026, 1, 10, 9, 0),
+        end: new Date(2026, 1, 10, 10, 0),
+        display: "dot"
+      }
+    ];
+    const { container } = render(
+      <Calendar events={dotEvents} initialDate={new Date(2026, 1, 1)} initialView="month" />
+    );
+    const dot = container.querySelector(".oc-event-dot");
+    expect(dot).toBeTruthy();
+    const indicator = container.querySelector(".oc-event-dot__indicator");
+    expect(indicator).toBeTruthy();
+    expect(screen.getByText("Dot Event")).toBeTruthy();
+  });
+
+  it("renders list-item display variant with time and title", () => {
+    const listItemEvents: CalendarEventInput[] = [
+      {
+        id: "li1",
+        title: "List Item Event",
+        start: new Date(2026, 1, 10, 14, 30),
+        end: new Date(2026, 1, 10, 15, 30),
+        display: "list-item"
+      }
+    ];
+    const { container } = render(
+      <Calendar events={listItemEvents} initialDate={new Date(2026, 1, 1)} initialView="month" />
+    );
+    const listItem = container.querySelector(".oc-event-list-item");
+    expect(listItem).toBeTruthy();
+    expect(screen.getByText("14:30")).toBeTruthy();
+    expect(screen.getByText("List Item Event")).toBeTruthy();
+  });
+
+  it("renders dot variant in dayGrid view", () => {
+    const dotEvents: CalendarEventInput[] = [
+      {
+        id: "d2",
+        title: "DayGrid Dot",
+        start: new Date(2026, 1, 10, 9, 0),
+        end: new Date(2026, 1, 10, 10, 0),
+        display: "dot"
+      }
+    ];
+    const { container } = render(
+      <Calendar events={dotEvents} initialDate={new Date(2026, 1, 10)} initialView="dayGridWeek" />
+    );
+    expect(container.querySelector(".oc-event-dot")).toBeTruthy();
+    expect(screen.getByText("DayGrid Dot")).toBeTruthy();
+  });
+});
+
 describe("Interactions", () => {
   it("fires onSelect when selectable is enabled", async () => {
     const onSelect = vi.fn();
