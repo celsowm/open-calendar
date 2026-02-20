@@ -205,8 +205,81 @@
 }
 
 .oc-more-label {
+  border: 0;
+  background: transparent;
   font-size: 0.72rem;
+  font-weight: 600;
   color: var(--oc-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.oc-more-label:hover {
+  background: color-mix(in srgb, var(--oc-border) 40%, transparent);
+}
+
+/* Event Popover */
+.oc-popover {
+  z-index: 100;
+  min-width: 200px;
+  max-width: 300px;
+  border: 1px solid var(--oc-border);
+  border-radius: 12px;
+  background: var(--oc-surface);
+  box-shadow: 0 12px 40px -10px rgba(17, 22, 38, 0.35);
+  font-family: inherit;
+  animation: oc-popover-in 0.15s ease-out;
+}
+
+@keyframes oc-popover-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.oc-popover__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--oc-border);
+}
+
+.oc-popover__title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--oc-text);
+}
+
+.oc-popover__close {
+  border: 0;
+  background: transparent;
+  color: var(--oc-muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.oc-popover__close:hover {
+  background: color-mix(in srgb, var(--oc-border) 40%, transparent);
+}
+
+.oc-popover__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px 12px;
+  max-height: 240px;
+  overflow-y: auto;
 }
 
 .oc-timegrid {

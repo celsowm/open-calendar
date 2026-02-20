@@ -40,7 +40,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [ ] Event display variants (compact, dot, list item)
 - [ ] Event clicking and hover hooks
 - [x] Event dragging and resizing
-- [ ] Event popover
+- [x] Event popover
 - [x] Background events
 
 ## Phase 4: Resources + Timeline

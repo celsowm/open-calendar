@@ -1,9 +1,16 @@
 import { format, isToday, startOfMonth, startOfWeek, addDays } from "date-fns";
 import type { Locale } from "date-fns";
-import { Fragment } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { areSameDay, getWeekNumber } from "../core/date";
 import { eventIntersectsDay } from "../core/events";
+import { EventPopover } from "../components/EventPopover";
 import type { CalendarEvent } from "../types";
+
+interface PopoverState {
+  date: Date;
+  events: CalendarEvent[];
+  anchorRect: DOMRect;
+}
 
 interface MonthViewProps {
   date: Date;
@@ -30,6 +37,18 @@ export function MonthView({
   onEventClick,
   onNavLinkClick
 }: MonthViewProps) {
+  const [popover, setPopover] = useState<PopoverState | null>(null);
+
+  const handleMoreClick = useCallback(
+    (e: React.MouseEvent, day: Date, dayEvents: CalendarEvent[]) => {
+      e.stopPropagation();
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      setPopover({ date: day, events: dayEvents, anchorRect: rect });
+    },
+    []
+  );
+
+  const closePopover = useCallback(() => setPopover(null), []);
   const firstCell = startOfWeek(startOfMonth(date), { weekStartsOn });
   const dayLabels = Array.from({ length: 7 }, (_, index) =>
     format(addDays(firstCell, index), "EEE", { locale })
@@ -104,13 +123,32 @@ export function MonthView({
                   </button>
                 ))}
 
-                {overflowCount > 0 ? <span className="oc-more-label">+{overflowCount} more</span> : null}
+                {overflowCount > 0 ? (
+                  <button
+                    type="button"
+                    className="oc-more-label"
+                    onClick={(e) => handleMoreClick(e, day, dayEvents)}
+                  >
+                    +{overflowCount} more
+                  </button>
+                ) : null}
               </div>
             </article>
             </Fragment>
           );
         })}
       </div>
+
+      {popover && (
+        <EventPopover
+          date={popover.date}
+          events={popover.events}
+          anchorRect={popover.anchorRect}
+          locale={locale}
+          onEventClick={onEventClick}
+          onClose={closePopover}
+        />
+      )}
     </section>
   );
 }
