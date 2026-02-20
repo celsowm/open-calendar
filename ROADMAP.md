@@ -36,7 +36,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 ## Phase 3: Events
 
 - [x] Event model
-- [ ] Event sources adapters (HTTP, function, cache, lazy range fetch)
+- [x] Event sources adapters (HTTP, function, cache, lazy range fetch)
 - [x] Event display variants (compact, dot, list item)
 - [x] Event clicking and hover hooks
 - [x] Event dragging and resizing

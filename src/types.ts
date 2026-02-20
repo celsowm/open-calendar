@@ -138,7 +138,10 @@ export interface DateSelectInfo {
 }
 
 export interface CalendarProps {
-  events: CalendarEventInput[];
+  /** Static events array. Optional if using eventSources */
+  events?: CalendarEventInput[];
+  /** Event sources for dynamic event fetching (HTTP, function, JSON feed) */
+  eventSources?: EventSource[];
   initialDate?: DateInput;
   initialView?: CalendarView;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
@@ -164,6 +167,80 @@ export interface CalendarProps {
   listRange?: number;
   /** Custom view configurations for extending the calendar with user-defined views */
   customViews?: CustomViewConfig[];
+}
+
+/** Event Source Types */
+
+export interface EventSourceRange {
+  start: Date;
+  end: Date;
+}
+
+export interface EventSourceFetchParams {
+  start: Date;
+  end: Date;
+  timeZone?: string;
+}
+
+export interface HttpEventSourceConfig {
+  /** URL to fetch events from. Can be a string or a function that returns a URL */
+  url: string | ((params: EventSourceFetchParams) => string);
+  /** HTTP method (default: 'GET') */
+  method?: string;
+  /** Headers to include in the request */
+  headers?: Record<string, string>;
+  /** Request body for POST requests */
+  body?: Record<string, unknown> | ((params: EventSourceFetchParams) => Record<string, unknown>);
+  /** Custom response data extractor */
+  eventDataTransform?: (data: unknown) => CalendarEventInput[];
+  /** Enable caching (default: true) */
+  cache?: boolean;
+  /** Cache duration in milliseconds (default: 10 minutes) */
+  cacheDuration?: number;
+  /** Fetch options */
+  credentials?: RequestCredentials;
+  /** Enable lazy range fetching - only fetch when range is needed */
+  lazy?: boolean;
+}
+
+export interface FunctionEventSourceConfig {
+  /** Function to fetch events */
+  events: (params: EventSourceFetchParams) => CalendarEventInput[] | Promise<CalendarEventInput[]>;
+  /** Enable caching (default: true) */
+  cache?: boolean;
+  /** Cache duration in milliseconds (default: 10 minutes) */
+  cacheDuration?: number;
+  /** Enable lazy range fetching */
+  lazy?: boolean;
+}
+
+export interface JsonFeedEventSourceConfig {
+  /** URL to fetch JSON feed from */
+  url: string | ((params: EventSourceFetchParams) => string);
+  /** Headers to include in the request */
+  headers?: Record<string, string>;
+  /** Custom response data extractor */
+  eventDataTransform?: (data: unknown) => CalendarEventInput[];
+  /** Enable caching (default: true) */
+  cache?: boolean;
+  /** Cache duration in milliseconds (default: 10 minutes) */
+  cacheDuration?: number;
+  /** Fetch options */
+  credentials?: RequestCredentials;
+  /** Enable lazy range fetching */
+  lazy?: boolean;
+}
+
+export type EventSource =
+  | { type: "http"; config: HttpEventSourceConfig }
+  | { type: "function"; config: FunctionEventSourceConfig }
+  | { type: "jsonFeed"; config: JsonFeedEventSourceConfig }
+  | { type: "static"; events: CalendarEventInput[] };
+
+export interface EventSourceStatus {
+  isLoading: boolean;
+  error: Error | null;
+  lastFetched?: Date;
 }
 
 export interface ToolbarProps {

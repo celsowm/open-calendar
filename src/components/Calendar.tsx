@@ -1,12 +1,13 @@
 import clsx from "clsx";
 import { addMinutes, format, startOfDay } from "date-fns";
-import { useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { getViewRange } from "../core/date";
 import { expandRecurringEvents, normalizeEvents } from "../core/events";
 import { useCalendarState } from "../hooks/useCalendarState";
 import { useDrag } from "../hooks/useDrag";
 import { useResize } from "../hooks/useResize";
 import { useSelection } from "../hooks/useSelection";
+import { useEventSources } from "../hooks/useEventSources";
 import { Toolbar } from "./Toolbar";
 import { MonthView } from "../views/MonthView";
 import { TimeGridView } from "../views/TimeGridView";
@@ -84,7 +85,8 @@ function getAvailableViews(props: CalendarProps) {
 
 export function Calendar(props: CalendarProps) {
   const {
-    events,
+    events: staticEvents = [],
+    eventSources = [],
     initialDate,
     initialView = "month",
     weekStartsOn = 1,
@@ -117,7 +119,14 @@ export function Calendar(props: CalendarProps) {
     onSelect
   });
 
-  const normalizedEvents = useMemo(() => normalizeEvents(events), [events]);
+  // Event sources hook for dynamic event fetching
+  const { events: sourceEvents, isLoading, error, fetchForRange } = useEventSources({
+    sources: eventSources,
+    initialEvents: staticEvents
+  });
+
+  // Normalize all events (from static + sources)
+  const normalizedEvents = useMemo(() => normalizeEvents(sourceEvents), [sourceEvents]);
   
   // Get custom view date range if applicable
   const customViewRange = useMemo(() => {
@@ -132,6 +141,13 @@ export function Calendar(props: CalendarProps) {
     () => customViewRange ?? getViewRange(state.view, state.currentDate, weekStartsOn, listRange),
     [customViewRange, state.currentDate, state.view, weekStartsOn, listRange]
   );
+
+  // Fetch events from sources when visible range changes
+  useEffect(() => {
+    if (eventSources.length > 0) {
+      fetchForRange(visibleRange.start, visibleRange.end);
+    }
+  }, [eventSources, visibleRange.start, visibleRange.end, fetchForRange]);
 
   const visibleEvents = useMemo(
     () => expandRecurringEvents(normalizedEvents, visibleRange.start, visibleRange.end),
