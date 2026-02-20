@@ -19,7 +19,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [x] Multi-Month Grid
 - [x] Timeline View
 - [x] Vertical Resource View
-- [ ] Custom Views
+- [x] Custom Views
 - [ ] View API extensions
 
 ## Phase 2: Date + Time

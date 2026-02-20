@@ -1,7 +1,8 @@
 import type { Locale } from "date-fns";
+import type { ReactNode } from "react";
 
 export type DateInput = Date | string | number;
-export type CalendarView =
+export type BuiltInViewType =
   | "month"
   | "timeGridWeek"
   | "timeGridDay"
@@ -12,6 +13,50 @@ export type CalendarView =
   | "multiMonthGrid"
   | "timeline"
   | "resourceTimeGrid";
+
+export type CalendarView = BuiltInViewType | string;
+
+export interface CustomViewConfig {
+  /** Unique identifier for the view */
+  type: string;
+  /** Display label shown in toolbar */
+  label: string;
+  /** Component to render for this view */
+  component: React.ComponentType<CustomViewProps>;
+  /** Duration in days for navigation (default: 1) */
+  duration?: number;
+  /** Duration in weeks for navigation */
+  durationWeeks?: number;
+  /** Duration in months for navigation */
+  durationMonths?: number;
+  /** Custom title formatter */
+  titleFormat?: (date: Date, locale?: Locale) => string;
+  /** Custom date range calculator */
+  dateRange?: (date: Date, weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6) => { start: Date; end: Date };
+}
+
+export interface CustomViewProps {
+  /** Current date being displayed */
+  date: Date;
+  /** Events visible in the current range */
+  events: CalendarEvent[];
+  /** Current locale */
+  locale?: Locale;
+  /** Day the week starts on (0=Sunday, 1=Monday, etc.) */
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /** Resources for resource-based views */
+  resources?: Resource[];
+  /** Handler for date clicks */
+  onDateClick?: (date: Date) => void;
+  /** Handler for event clicks */
+  onEventClick?: (event: CalendarEvent) => void;
+  /** Whether editing is enabled */
+  editable?: boolean;
+  /** Whether selection is enabled */
+  selectable?: boolean;
+  /** Handler for date selection */
+  onSelect?: (info: DateSelectInfo) => void;
+}
 
 export type EventDisplay = "auto" | "background";
 
@@ -104,6 +149,8 @@ export interface CalendarProps {
   weekNumbers?: boolean;
   resources?: Resource[];
   listRange?: number;
+  /** Custom view configurations for extending the calendar with user-defined views */
+  customViews?: CustomViewConfig[];
 }
 
 export interface ToolbarProps {

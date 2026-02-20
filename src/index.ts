@@ -6,6 +6,8 @@ export type {
   CalendarEventInput,
   CalendarProps,
   CalendarView,
+  CustomViewConfig,
+  CustomViewProps,
   DateSelectInfo,
   EventDropInfo,
   EventResizeInfo,

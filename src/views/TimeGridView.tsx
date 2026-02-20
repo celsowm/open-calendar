@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { layoutTimedEvents } from "../core/event-layout";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
-import type { BusinessHoursInput, CalendarEvent, CalendarView } from "../types";
+import type { BusinessHoursInput, BuiltInViewType, CalendarEvent } from "../types";
 import type { DragState } from "../hooks/useDrag";
 import type { ResizeState } from "../hooks/useResize";
 import type { SelectionState } from "../hooks/useSelection";
@@ -14,7 +14,7 @@ interface TimeGridViewProps {
   events: CalendarEvent[];
   locale?: Locale;
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  view: Extract<CalendarView, "timeGridWeek" | "timeGridDay">;
+  view: Extract<BuiltInViewType, "timeGridWeek" | "timeGridDay">;
   nowIndicator: boolean;
   navLinks: boolean;
   businessHours?: BusinessHoursInput[];
