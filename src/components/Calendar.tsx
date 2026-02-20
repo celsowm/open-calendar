@@ -68,6 +68,7 @@ export function Calendar(props: CalendarProps) {
     height = 760,
     businessHours,
     navLinks = true,
+    weekNumbers = false,
     editable = false,
     onEventDrop,
     onEventResize,
@@ -119,6 +120,7 @@ export function Calendar(props: CalendarProps) {
             events={visibleEvents}
             locale={locale}
             weekStartsOn={weekStartsOn}
+            weekNumbers={weekNumbers}
             navLinks={navLinks}
             onDateClick={onDateClick}
             onEventClick={onEventClick}

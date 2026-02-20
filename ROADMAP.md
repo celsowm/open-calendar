@@ -27,7 +27,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [x] Date & time display
 - [x] Date navigation
 - [x] Date nav links
-- [ ] Week numbers
+- [x] Week numbers
 - [x] Date clicking
 - [x] Date range selecting
 - [x] Now indicator

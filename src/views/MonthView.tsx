@@ -1,6 +1,7 @@
 import { format, isToday, startOfMonth, startOfWeek, addDays } from "date-fns";
 import type { Locale } from "date-fns";
-import { areSameDay } from "../core/date";
+import { Fragment } from "react";
+import { areSameDay, getWeekNumber } from "../core/date";
 import { eventIntersectsDay } from "../core/events";
 import type { CalendarEvent } from "../types";
 
@@ -9,6 +10,7 @@ interface MonthViewProps {
   events: CalendarEvent[];
   locale?: Locale;
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  weekNumbers: boolean;
   navLinks: boolean;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
@@ -22,6 +24,7 @@ export function MonthView({
   events,
   locale,
   weekStartsOn,
+  weekNumbers,
   navLinks,
   onDateClick,
   onEventClick,
@@ -32,10 +35,12 @@ export function MonthView({
     format(addDays(firstCell, index), "EEE", { locale })
   );
   const monthDays = Array.from({ length: 42 }, (_, index) => addDays(firstCell, index));
+  const cols = weekNumbers ? 8 : 7;
 
   return (
-    <section className="oc-month">
+    <section className="oc-month" style={{ "--oc-month-cols": String(cols) } as React.CSSProperties}>
       <div className="oc-month__header">
+        {weekNumbers && <div className="oc-month__header-cell oc-month__week-header">W</div>}
         {dayLabels.map((label, index) => (
           <div key={`${label}-${index}`} className="oc-month__header-cell">
             {label}
@@ -44,20 +49,27 @@ export function MonthView({
       </div>
 
       <div className="oc-month__grid">
-        {monthDays.map((day) => {
+        {monthDays.map((day, index) => {
+          const showWeekNum = weekNumbers && index % 7 === 0;
+          const weekNum = showWeekNum ? getWeekNumber(day, weekStartsOn) : null;
           const dayEvents = events.filter((event) => eventIntersectsDay(event, day));
           const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
           const overflowCount = Math.max(dayEvents.length - visibleEvents.length, 0);
           const isCurrentMonth = day.getMonth() === date.getMonth();
 
           return (
-            <article
-              key={day.toISOString()}
-              className={`oc-day-cell ${isCurrentMonth ? "" : "oc-day-cell--muted"} ${
-                isToday(day) ? "oc-day-cell--today" : ""
-              }`}
-              onClick={() => onDateClick?.(day)}
-            >
+            <Fragment key={day.toISOString()}>
+              {weekNum !== null && (
+                <div className="oc-month__week-number">
+                  {weekNum}
+                </div>
+              )}
+              <article
+                className={`oc-day-cell ${isCurrentMonth ? "" : "oc-day-cell--muted"} ${
+                  isToday(day) ? "oc-day-cell--today" : ""
+                }`}
+                onClick={() => onDateClick?.(day)}
+              >
               <div className="oc-day-cell__date-wrap">
                 {navLinks ? (
                   <button
@@ -95,6 +107,7 @@ export function MonthView({
                 {overflowCount > 0 ? <span className="oc-more-label">+{overflowCount} more</span> : null}
               </div>
             </article>
+            </Fragment>
           );
         })}
       </div>

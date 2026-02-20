@@ -4,6 +4,7 @@ import {
   endOfDay,
   endOfMonth,
   endOfWeek,
+  getWeek,
   startOfDay,
   startOfMonth,
   startOfWeek
@@ -101,4 +102,11 @@ export function minutesSinceDayStart(date: Date): number {
 export function parseTimeToMinutes(value: string): number {
   const [hours, minutes] = value.split(":").map((item) => Number.parseInt(item, 10));
   return hours * 60 + minutes;
+}
+
+export function getWeekNumber(
+  date: Date,
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6
+): number {
+  return getWeek(date, { weekStartsOn });
 }

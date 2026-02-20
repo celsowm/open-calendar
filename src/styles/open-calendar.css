@@ -112,7 +112,7 @@
 .oc-month__header,
 .oc-month__grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--oc-month-cols, 7), minmax(0, 1fr));
 }
 
 .oc-month__header-cell {
@@ -129,6 +129,23 @@
 
 .oc-month__header-cell:last-child {
   border-right: none;
+}
+
+.oc-month__week-header {
+  max-width: 40px;
+}
+
+.oc-month__week-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 40px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--oc-muted);
+  border-right: 1px solid var(--oc-border);
+  border-bottom: 1px solid var(--oc-border);
+  background: color-mix(in srgb, var(--oc-bg) 70%, var(--oc-surface) 30%);
 }
 
 .oc-month__grid {

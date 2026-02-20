@@ -101,6 +101,7 @@ export interface CalendarProps {
   onEventResize?: (info: EventResizeInfo) => void;
   selectable?: boolean;
   onSelect?: (info: DateSelectInfo) => void;
+  weekNumbers?: boolean;
   resources?: Resource[];
   listRange?: number;
 }

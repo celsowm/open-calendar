@@ -108,6 +108,36 @@ describe("ResourceTimeGridView", () => {
   });
 });
 
+describe("WeekNumbers", () => {
+  it("renders week numbers in month view when enabled", () => {
+    const { container } = render(
+      <Calendar
+        events={events}
+        initialDate={new Date(2026, 1, 1)}
+        initialView="month"
+        weekNumbers
+      />
+    );
+    const weekCells = container.querySelectorAll(".oc-month__week-number");
+    expect(weekCells.length).toBe(6);
+    const weekHeader = container.querySelector(".oc-month__week-header");
+    expect(weekHeader).toBeTruthy();
+    expect(weekHeader!.textContent).toBe("W");
+  });
+
+  it("does not render week numbers when disabled", () => {
+    const { container } = render(
+      <Calendar
+        events={events}
+        initialDate={new Date(2026, 1, 1)}
+        initialView="month"
+      />
+    );
+    const weekCells = container.querySelectorAll(".oc-month__week-number");
+    expect(weekCells.length).toBe(0);
+  });
+});
+
 describe("Interactions", () => {
   it("fires onSelect when selectable is enabled", async () => {
     const onSelect = vi.fn();
