@@ -1,7 +1,17 @@
 import type { Locale } from "date-fns";
 
 export type DateInput = Date | string | number;
-export type CalendarView = "month" | "timeGridWeek" | "timeGridDay";
+export type CalendarView =
+  | "month"
+  | "timeGridWeek"
+  | "timeGridDay"
+  | "list"
+  | "dayGridWeek"
+  | "dayGridDay"
+  | "multiMonthStack"
+  | "multiMonthGrid"
+  | "timeline"
+  | "resourceTimeGrid";
 
 export type EventDisplay = "auto" | "background";
 
@@ -39,6 +49,40 @@ export interface BusinessHoursInput {
   endTime: string;
 }
 
+export interface Resource {
+  id: string;
+  title: string;
+  color?: string;
+  children?: Resource[];
+}
+
+export interface EventDropInfo {
+  event: CalendarEvent;
+  oldStart: Date;
+  oldEnd: Date;
+  newStart: Date;
+  newEnd: Date;
+  oldResourceId?: string;
+  newResourceId?: string;
+  revert: () => void;
+}
+
+export interface EventResizeInfo {
+  event: CalendarEvent;
+  oldStart: Date;
+  oldEnd: Date;
+  newStart: Date;
+  newEnd: Date;
+  revert: () => void;
+}
+
+export interface DateSelectInfo {
+  start: Date;
+  end: Date;
+  allDay: boolean;
+  resourceId?: string;
+}
+
 export interface CalendarProps {
   events: CalendarEventInput[];
   initialDate?: DateInput;
@@ -52,11 +96,19 @@ export interface CalendarProps {
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   navLinks?: boolean;
+  editable?: boolean;
+  onEventDrop?: (info: EventDropInfo) => void;
+  onEventResize?: (info: EventResizeInfo) => void;
+  selectable?: boolean;
+  onSelect?: (info: DateSelectInfo) => void;
+  resources?: Resource[];
+  listRange?: number;
 }
 
 export interface ToolbarProps {
   title: string;
   view: CalendarView;
+  availableViews: Array<{ label: string; value: CalendarView }>;
   onToday: () => void;
   onPrev: () => void;
   onNext: () => void;

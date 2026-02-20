@@ -28,6 +28,30 @@ body {
   color: #4d566e;
 }
 
+.playground-view-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.playground-view-btn {
+  border: 1px solid #d5dcea;
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: #0f1524;
+}
+
+.playground-view-btn--active {
+  background: #0d9e8b;
+  border-color: #0d9e8b;
+  color: #ffffff;
+}
+
 .playground-status {
   margin-top: 12px;
   border: 1px solid #d5dcea;

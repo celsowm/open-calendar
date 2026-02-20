@@ -1,10 +1,13 @@
 import { addDays, addMinutes, format, isToday, startOfDay, startOfWeek } from "date-fns";
 import type { Locale } from "date-fns";
-import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { layoutTimedEvents } from "../core/event-layout";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
 import type { BusinessHoursInput, CalendarEvent, CalendarView } from "../types";
+import type { DragState } from "../hooks/useDrag";
+import type { ResizeState } from "../hooks/useResize";
+import type { SelectionState } from "../hooks/useSelection";
 
 interface TimeGridViewProps {
   date: Date;
@@ -18,6 +21,14 @@ interface TimeGridViewProps {
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
   onNavLinkClick?: (date: Date) => void;
+  editable?: boolean;
+  selectable?: boolean;
+  dragState?: DragState | null;
+  resizeState?: ResizeState | null;
+  selectionState?: SelectionState | null;
+  onDragStart?: (e: React.PointerEvent, event: CalendarEvent, container: HTMLElement) => void;
+  onResizeStart?: (e: React.PointerEvent, event: CalendarEvent, container: HTMLElement) => void;
+  onSelectionStart?: (e: React.PointerEvent, day: Date, container: HTMLElement) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
@@ -45,7 +56,15 @@ export function TimeGridView({
   businessHours = [],
   onDateClick,
   onEventClick,
-  onNavLinkClick
+  onNavLinkClick,
+  editable = false,
+  selectable = false,
+  dragState,
+  resizeState,
+  selectionState,
+  onDragStart,
+  onResizeStart,
+  onSelectionStart
 }: TimeGridViewProps) {
   const [now, setNow] = useState(() => new Date());
 
@@ -137,10 +156,16 @@ export function TimeGridView({
                 key={day.toISOString()}
                 className="oc-timegrid__column"
                 onClick={(clickEvent) => {
+                  if (selectable) return;
                   const rect = clickEvent.currentTarget.getBoundingClientRect();
                   const relativeY = Math.min(Math.max(clickEvent.clientY - rect.top, 0), rect.height);
                   const minutes = Math.floor((relativeY / rect.height) * 24 * 60);
                   onDateClick?.(addMinutes(startOfDay(day), minutes));
+                }}
+                onPointerDown={(e) => {
+                  if (selectable && onSelectionStart) {
+                    onSelectionStart(e, day, e.currentTarget);
+                  }
                 }}
               >
                 {HOURS.map((hour) => (
@@ -177,29 +202,72 @@ export function TimeGridView({
                   );
                 })}
 
-                {timedLayouts.map((layout) => (
-                  <button
-                    key={`${layout.event.id}-${layout.event.start.toISOString()}`}
-                    type="button"
-                    className={`oc-timegrid__event ${layout.event.className ?? ""}`}
-                    style={{
-                      top: `${layout.top}%`,
-                      left: `calc(${layout.left}% + 2px)`,
-                      width: `calc(${layout.width}% - 4px)`,
-                      height: `${layout.height}%`,
-                      backgroundColor: layout.event.color
-                    }}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onEventClick?.(layout.event);
-                    }}
-                  >
-                    <span className="oc-timegrid__event-title">{layout.event.title}</span>
-                    <span className="oc-timegrid__event-time">
-                      {format(layout.event.start, "HH:mm")} - {format(layout.event.end, "HH:mm")}
-                    </span>
-                  </button>
-                ))}
+                {selectionState && !selectionState.allDay ? (() => {
+                  const selStart = (selectionState.start.getHours() * 60 + selectionState.start.getMinutes()) / (24 * 60) * 100;
+                  const selEnd = (selectionState.end.getHours() * 60 + selectionState.end.getMinutes()) / (24 * 60) * 100;
+                  return (
+                    <div
+                      className="oc-timegrid__selection"
+                      style={{ top: `${selStart}%`, height: `${selEnd - selStart}%` }}
+                    />
+                  );
+                })() : null}
+
+                {timedLayouts.map((layout) => {
+                  const isDragging = dragState?.event.id === layout.event.id;
+                  const isResizing = resizeState?.event.id === layout.event.id;
+                  let top = layout.top;
+                  let eventHeight = layout.height;
+
+                  if (isDragging && dragState) {
+                    const mins = dragState.currentStart.getHours() * 60 + dragState.currentStart.getMinutes();
+                    top = (mins / (24 * 60)) * 100;
+                  }
+
+                  if (isResizing && resizeState) {
+                    const startMins = layout.event.start.getHours() * 60 + layout.event.start.getMinutes();
+                    const endMins = resizeState.currentEnd.getHours() * 60 + resizeState.currentEnd.getMinutes();
+                    eventHeight = ((endMins - startMins) / (24 * 60)) * 100;
+                  }
+
+                  return (
+                    <button
+                      key={`${layout.event.id}-${layout.event.start.toISOString()}`}
+                      type="button"
+                      className={`oc-timegrid__event ${layout.event.className ?? ""} ${isDragging ? "oc-timegrid__event--dragging" : ""} ${isResizing ? "oc-timegrid__event--resizing" : ""}`}
+                      style={{
+                        top: `${top}%`,
+                        left: `calc(${layout.left}% + 2px)`,
+                        width: `calc(${layout.width}% - 4px)`,
+                        height: `${eventHeight}%`,
+                        backgroundColor: layout.event.color
+                      }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onEventClick?.(layout.event);
+                      }}
+                      onPointerDown={(e) => {
+                        if (editable && onDragStart) {
+                          onDragStart(e, layout.event, e.currentTarget.parentElement!);
+                        }
+                      }}
+                    >
+                      <span className="oc-timegrid__event-title">{layout.event.title}</span>
+                      <span className="oc-timegrid__event-time">
+                        {format(layout.event.start, "HH:mm")} - {format(layout.event.end, "HH:mm")}
+                      </span>
+                      {editable && onResizeStart ? (
+                        <div
+                          className="oc-timegrid__resize-handle"
+                          onPointerDown={(e) => {
+                            e.stopPropagation();
+                            onResizeStart(e, layout.event, e.currentTarget.parentElement!.parentElement!);
+                          }}
+                        />
+                      ) : null}
+                    </button>
+                  );
+                })}
 
                 {nowIndicator && isToday(day) ? (
                   <div

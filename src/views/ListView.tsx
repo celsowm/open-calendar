@@ -1,0 +1,63 @@
+import { format, startOfDay } from "date-fns";
+import type { Locale } from "date-fns";
+import type { CalendarEvent } from "../types";
+
+interface ListViewProps {
+  events: CalendarEvent[];
+  locale?: Locale;
+  onEventClick?: (event: CalendarEvent) => void;
+}
+
+export function ListView({ events, locale, onEventClick }: ListViewProps) {
+  const visibleEvents = events.filter((event) => event.display !== "background");
+
+  if (visibleEvents.length === 0) {
+    return (
+      <section className="oc-list">
+        <p className="oc-list__empty">No events</p>
+      </section>
+    );
+  }
+
+  const sorted = [...visibleEvents].sort((a, b) => a.start.getTime() - b.start.getTime());
+
+  const groups = new Map<number, CalendarEvent[]>();
+  for (const event of sorted) {
+    const key = startOfDay(event.start).getTime();
+    const group = groups.get(key);
+    if (group) {
+      group.push(event);
+    } else {
+      groups.set(key, [event]);
+    }
+  }
+
+  return (
+    <section className="oc-list">
+      {[...groups.entries()].map(([dayKey, dayEvents]) => (
+        <div key={dayKey} className="oc-list__group">
+          <div className="oc-list__day-header">
+            {format(new Date(dayKey), "EEEE, MMM dd yyyy", { locale })}
+          </div>
+
+          {dayEvents.map((event) => (
+            <button
+              key={`${event.id}-${event.start.toISOString()}`}
+              type="button"
+              className={`oc-list__event ${event.className ?? ""}`}
+              style={{ borderLeftColor: event.color }}
+              onClick={() => onEventClick?.(event)}
+            >
+              <span className="oc-list__event-time">
+                {event.allDay
+                  ? "All-day"
+                  : `${format(event.start, "HH:mm", { locale })} - ${format(event.end, "HH:mm", { locale })}`}
+              </span>
+              <span className="oc-list__event-title">{event.title}</span>
+            </button>
+          ))}
+        </div>
+      ))}
+    </section>
+  );
+}

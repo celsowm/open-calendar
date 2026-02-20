@@ -9,11 +9,17 @@ interface CalendarStateOptions {
 }
 
 function stepDate(currentDate: Date, view: CalendarView, direction: 1 | -1): Date {
-  if (view === "month") {
+  if (view === "month" || view === "multiMonthGrid") {
     return addMonths(currentDate, direction);
   }
-  if (view === "timeGridWeek") {
+  if (view === "multiMonthStack") {
+    return addMonths(currentDate, direction * 3);
+  }
+  if (view === "timeGridWeek" || view === "dayGridWeek") {
     return addWeeks(currentDate, direction);
+  }
+  if (view === "list") {
+    return addDays(currentDate, direction * 30);
   }
   return addDays(currentDate, direction);
 }

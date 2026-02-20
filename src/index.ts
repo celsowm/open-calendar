@@ -5,5 +5,9 @@ export type {
   CalendarEvent,
   CalendarEventInput,
   CalendarProps,
-  CalendarView
+  CalendarView,
+  DateSelectInfo,
+  EventDropInfo,
+  EventResizeInfo,
+  Resource
 } from "./types";

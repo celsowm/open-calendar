@@ -1,14 +1,9 @@
 import type { ToolbarProps } from "../types";
 
-const VIEW_BUTTONS: Array<{ label: string; value: ToolbarProps["view"] }> = [
-  { label: "Month", value: "month" },
-  { label: "Week", value: "timeGridWeek" },
-  { label: "Day", value: "timeGridDay" }
-];
-
 export function Toolbar({
   title,
   view,
+  availableViews,
   onToday,
   onPrev,
   onNext,
@@ -31,7 +26,7 @@ export function Toolbar({
       <h2 className="oc-toolbar__title">{title}</h2>
 
       <div className="oc-toolbar__views">
-        {VIEW_BUTTONS.map((item) => (
+        {availableViews.map((item) => (
           <button
             key={item.value}
             type="button"

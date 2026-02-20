@@ -13,12 +13,12 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [x] Theme foundation
 - [x] Sizing foundation
 - [x] Month View
-- [ ] List View
-- [ ] DayGrid View
-- [ ] Multi-Month Stack
-- [ ] Multi-Month Grid
-- [ ] Timeline View
-- [ ] Vertical Resource View
+- [x] List View
+- [x] DayGrid View
+- [x] Multi-Month Stack
+- [x] Multi-Month Grid
+- [x] Timeline View
+- [x] Vertical Resource View
 - [ ] Custom Views
 - [ ] View API extensions
 
@@ -29,7 +29,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [x] Date nav links
 - [ ] Week numbers
 - [x] Date clicking
-- [ ] Date range selecting
+- [x] Date range selecting
 - [x] Now indicator
 - [x] Business hours
 
@@ -39,16 +39,16 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [ ] Event sources adapters (HTTP, function, cache, lazy range fetch)
 - [ ] Event display variants (compact, dot, list item)
 - [ ] Event clicking and hover hooks
-- [ ] Event dragging and resizing
+- [x] Event dragging and resizing
 - [ ] Event popover
 - [x] Background events
 
 ## Phase 4: Resources + Timeline
 
-- [ ] Resource data model and API
-- [ ] Resource display (grouping, columns)
-- [ ] Timeline view with horizontal virtualization
-- [ ] Vertical resource timegrid
+- [x] Resource data model and API
+- [x] Resource display (grouping, columns)
+- [x] Timeline view with horizontal virtualization
+- [x] Vertical resource timegrid
 
 ## Phase 5: International + Platform
 

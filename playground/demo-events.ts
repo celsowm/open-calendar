@@ -1,4 +1,4 @@
-import type { CalendarEventInput } from "../src/types";
+import type { CalendarEventInput, Resource } from "../src/types";
 
 const today = new Date();
 const year = today.getFullYear();
@@ -14,14 +14,16 @@ export const demoEvents: CalendarEventInput[] = [
     title: "Sprint Planning",
     start: dateAt(5, 9, 0),
     end: dateAt(5, 10, 30),
-    color: "#3862ff"
+    color: "#3862ff",
+    resourceId: "room-a"
   },
   {
     id: "build",
     title: "Launch Build",
     start: dateAt(5, 9, 30),
     end: dateAt(5, 11, 0),
-    color: "#009f86"
+    color: "#009f86",
+    resourceId: "room-b"
   },
   {
     id: "all-day",
@@ -43,6 +45,28 @@ export const demoEvents: CalendarEventInput[] = [
     start: dateAt(4, 10, 0),
     end: dateAt(4, 10, 15),
     color: "#ef4f4f",
-    rrule: "FREQ=DAILY;COUNT=15"
+    rrule: "FREQ=DAILY;COUNT=15",
+    resourceId: "room-a"
+  },
+  {
+    id: "design-review",
+    title: "Design Review",
+    start: dateAt(7, 14, 0),
+    end: dateAt(7, 15, 30),
+    color: "#e67e22",
+    resourceId: "room-b"
+  },
+  {
+    id: "team-lunch",
+    title: "Team Lunch",
+    start: dateAt(10, 12, 0),
+    end: dateAt(10, 13, 0),
+    color: "#2ecc71",
+    resourceId: "room-a"
   }
+];
+
+export const demoResources: Resource[] = [
+  { id: "room-a", title: "Room A", color: "#3862ff" },
+  { id: "room-b", title: "Room B", color: "#009f86" }
 ];

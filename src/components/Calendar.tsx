@@ -1,44 +1,96 @@
 import clsx from "clsx";
-import { format } from "date-fns";
-import { useMemo } from "react";
+import { addMinutes, format, startOfDay } from "date-fns";
+import { useMemo, useRef, type CSSProperties } from "react";
 import { getViewRange } from "../core/date";
 import { expandRecurringEvents, normalizeEvents } from "../core/events";
 import { useCalendarState } from "../hooks/useCalendarState";
+import { useDrag } from "../hooks/useDrag";
+import { useResize } from "../hooks/useResize";
+import { useSelection } from "../hooks/useSelection";
 import { Toolbar } from "./Toolbar";
 import { MonthView } from "../views/MonthView";
 import { TimeGridView } from "../views/TimeGridView";
+import { ListView } from "../views/ListView";
+import { DayGridView } from "../views/DayGridView";
+import { MultiMonthView } from "../views/MultiMonthView";
+import { TimelineView } from "../views/TimelineView";
+import { ResourceTimeGridView } from "../views/ResourceTimeGridView";
 import type { CalendarProps, CalendarView } from "../types";
 
+const VIEW_LABELS: Record<CalendarView, string> = {
+  month: "Month",
+  timeGridWeek: "Week",
+  timeGridDay: "Day",
+  list: "List",
+  dayGridWeek: "DayGrid Week",
+  dayGridDay: "DayGrid Day",
+  multiMonthStack: "Multi-Month",
+  multiMonthGrid: "Multi-Month Grid",
+  timeline: "Timeline",
+  resourceTimeGrid: "Resources"
+};
+
 function buildTitle(view: CalendarView, date: Date, locale?: CalendarProps["locale"]): string {
-  if (view === "timeGridDay") {
+  if (view === "timeGridDay" || view === "dayGridDay" || view === "timeline" || view === "resourceTimeGrid") {
     return format(date, "EEEE, MMM d yyyy", { locale });
   }
-  if (view === "timeGridWeek") {
+  if (view === "timeGridWeek" || view === "dayGridWeek") {
     return `${format(date, "MMM d", { locale })} week`;
+  }
+  if (view === "list") {
+    return `${format(date, "MMM d", { locale })} — upcoming`;
+  }
+  if (view === "multiMonthStack" || view === "multiMonthGrid") {
+    return format(date, "MMMM yyyy", { locale });
   }
   return format(date, "MMMM yyyy", { locale });
 }
 
-export function Calendar({
-  events,
-  initialDate,
-  initialView = "month",
-  weekStartsOn = 1,
-  nowIndicator = true,
-  locale,
-  className,
-  height = 760,
-  businessHours,
-  navLinks = true,
-  onDateClick,
-  onEventClick
-}: CalendarProps) {
+function getAvailableViews(props: CalendarProps) {
+  const views: CalendarView[] = ["month", "timeGridWeek", "timeGridDay"];
+
+  if (props.resources && props.resources.length > 0) {
+    views.push("timeline", "resourceTimeGrid");
+  }
+
+  return views.map((v) => ({ label: VIEW_LABELS[v], value: v }));
+}
+
+export function Calendar(props: CalendarProps) {
+  const {
+    events,
+    initialDate,
+    initialView = "month",
+    weekStartsOn = 1,
+    nowIndicator = true,
+    locale,
+    className,
+    height = 760,
+    businessHours,
+    navLinks = true,
+    editable = false,
+    onEventDrop,
+    onEventResize,
+    selectable = false,
+    onSelect,
+    onDateClick,
+    onEventClick,
+    resources = [],
+    listRange = 30
+  } = props;
+
   const state = useCalendarState({ initialDate, initialView });
+  const { dragState, handlePointerDown } = useDrag({ enabled: editable, onEventDrop });
+  const { resizeState, handleResizePointerDown } = useResize({ enabled: editable, onEventResize });
+  const { selectionState, handleTimeGridSelectionStart } = useSelection({
+    enabled: selectable,
+    onSelect
+  });
 
   const normalizedEvents = useMemo(() => normalizeEvents(events), [events]);
   const visibleRange = useMemo(
-    () => getViewRange(state.view, state.currentDate, weekStartsOn),
-    [state.currentDate, state.view, weekStartsOn]
+    () => getViewRange(state.view, state.currentDate, weekStartsOn, listRange),
+    [state.currentDate, state.view, weekStartsOn, listRange]
   );
 
   const visibleEvents = useMemo(
@@ -51,19 +103,17 @@ export function Calendar({
     [locale, state.currentDate, state.view]
   );
 
-  return (
-    <div className={clsx("oc-calendar", className)} style={{ height }}>
-      <Toolbar
-        title={title}
-        view={state.view}
-        onToday={state.goToToday}
-        onPrev={state.goToPrevious}
-        onNext={state.goToNext}
-        onViewChange={state.setView}
-      />
+  const availableViews = useMemo(() => getAvailableViews(props), [props.resources]);
 
-      <div className="oc-calendar__body">
-        {state.view === "month" ? (
+  const navLinkHandler = (clickedDate: Date) => {
+    state.setCurrentDate(clickedDate);
+    state.setView("timeGridDay");
+  };
+
+  const renderView = () => {
+    switch (state.view) {
+      case "month":
+        return (
           <MonthView
             date={state.currentDate}
             events={visibleEvents}
@@ -72,12 +122,13 @@ export function Calendar({
             navLinks={navLinks}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
-            onNavLinkClick={(clickedDate) => {
-              state.setCurrentDate(clickedDate);
-              state.setView("timeGridDay");
-            }}
+            onNavLinkClick={navLinkHandler}
           />
-        ) : (
+        );
+
+      case "timeGridWeek":
+      case "timeGridDay":
+        return (
           <TimeGridView
             date={state.currentDate}
             events={visibleEvents}
@@ -89,12 +140,114 @@ export function Calendar({
             businessHours={businessHours}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
-            onNavLinkClick={(clickedDate) => {
-              state.setCurrentDate(clickedDate);
-              state.setView("timeGridDay");
-            }}
+            onNavLinkClick={navLinkHandler}
+            editable={editable}
+            selectable={selectable}
+            dragState={dragState}
+            resizeState={resizeState}
+            selectionState={selectionState}
+            onDragStart={handlePointerDown}
+            onResizeStart={handleResizePointerDown}
+            onSelectionStart={handleTimeGridSelectionStart}
           />
-        )}
+        );
+
+      case "list":
+        return (
+          <ListView
+            events={visibleEvents}
+            locale={locale}
+            onEventClick={onEventClick}
+          />
+        );
+
+      case "dayGridWeek":
+      case "dayGridDay":
+        return (
+          <DayGridView
+            date={state.currentDate}
+            events={visibleEvents}
+            locale={locale}
+            weekStartsOn={weekStartsOn}
+            view={state.view}
+            navLinks={navLinks}
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+            onNavLinkClick={navLinkHandler}
+          />
+        );
+
+      case "multiMonthStack":
+        return (
+          <MultiMonthView
+            date={state.currentDate}
+            events={visibleEvents}
+            locale={locale}
+            weekStartsOn={weekStartsOn}
+            mode="stack"
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+          />
+        );
+
+      case "multiMonthGrid":
+        return (
+          <MultiMonthView
+            date={state.currentDate}
+            events={visibleEvents}
+            locale={locale}
+            weekStartsOn={weekStartsOn}
+            mode="grid"
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+          />
+        );
+
+      case "timeline":
+        return (
+          <TimelineView
+            date={state.currentDate}
+            events={visibleEvents}
+            resources={resources}
+            locale={locale}
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+          />
+        );
+
+      case "resourceTimeGrid":
+        return (
+          <ResourceTimeGridView
+            date={state.currentDate}
+            events={visibleEvents}
+            resources={resources}
+            locale={locale}
+            nowIndicator={nowIndicator}
+            businessHours={businessHours}
+            onDateClick={onDateClick}
+            onEventClick={onEventClick}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className={clsx("oc-calendar", className)} style={{ height }}>
+      <Toolbar
+        title={title}
+        view={state.view}
+        availableViews={availableViews}
+        onToday={state.goToToday}
+        onPrev={state.goToPrevious}
+        onNext={state.goToNext}
+        onViewChange={state.setView}
+      />
+
+      <div className="oc-calendar__body">
+        {renderView()}
       </div>
     </div>
   );
