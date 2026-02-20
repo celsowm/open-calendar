@@ -1,0 +1,103 @@
+import { format, isToday, startOfMonth, startOfWeek, addDays } from "date-fns";
+import type { Locale } from "date-fns";
+import { areSameDay } from "../core/date";
+import { eventIntersectsDay } from "../core/events";
+import type { CalendarEvent } from "../types";
+
+interface MonthViewProps {
+  date: Date;
+  events: CalendarEvent[];
+  locale?: Locale;
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  navLinks: boolean;
+  onDateClick?: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
+  onNavLinkClick?: (date: Date) => void;
+}
+
+const MAX_VISIBLE_EVENTS = 3;
+
+export function MonthView({
+  date,
+  events,
+  locale,
+  weekStartsOn,
+  navLinks,
+  onDateClick,
+  onEventClick,
+  onNavLinkClick
+}: MonthViewProps) {
+  const firstCell = startOfWeek(startOfMonth(date), { weekStartsOn });
+  const dayLabels = Array.from({ length: 7 }, (_, index) =>
+    format(addDays(firstCell, index), "EEE", { locale })
+  );
+  const monthDays = Array.from({ length: 42 }, (_, index) => addDays(firstCell, index));
+
+  return (
+    <section className="oc-month">
+      <div className="oc-month__header">
+        {dayLabels.map((label, index) => (
+          <div key={`${label}-${index}`} className="oc-month__header-cell">
+            {label}
+          </div>
+        ))}
+      </div>
+
+      <div className="oc-month__grid">
+        {monthDays.map((day) => {
+          const dayEvents = events.filter((event) => eventIntersectsDay(event, day));
+          const visibleEvents = dayEvents.slice(0, MAX_VISIBLE_EVENTS);
+          const overflowCount = Math.max(dayEvents.length - visibleEvents.length, 0);
+          const isCurrentMonth = day.getMonth() === date.getMonth();
+
+          return (
+            <article
+              key={day.toISOString()}
+              className={`oc-day-cell ${isCurrentMonth ? "" : "oc-day-cell--muted"} ${
+                isToday(day) ? "oc-day-cell--today" : ""
+              }`}
+              onClick={() => onDateClick?.(day)}
+            >
+              <div className="oc-day-cell__date-wrap">
+                {navLinks ? (
+                  <button
+                    type="button"
+                    className="oc-day-cell__date oc-link-reset"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onNavLinkClick?.(day);
+                    }}
+                  >
+                    {format(day, "d")}
+                  </button>
+                ) : (
+                  <span className="oc-day-cell__date">{format(day, "d")}</span>
+                )}
+              </div>
+
+              <div className="oc-day-cell__events">
+                {visibleEvents.map((event) => (
+                  <button
+                    key={`${event.id}-${event.start.toISOString()}`}
+                    type="button"
+                    className={`oc-event-chip ${event.className ?? ""}`}
+                    style={{ backgroundColor: event.color }}
+                    onClick={(clickEvent) => {
+                      clickEvent.stopPropagation();
+                      onEventClick?.(event);
+                    }}
+                  >
+                    {!areSameDay(event.start, day) ? "-> " : ""}
+                    {event.title}
+                  </button>
+                ))}
+
+                {overflowCount > 0 ? <span className="oc-more-label">+{overflowCount} more</span> : null}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}

@@ -1,0 +1,38 @@
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 10% -20%, #d6f3ff 0%, transparent 38%),
+    radial-gradient(circle at 100% 0%, #d6ffed 0%, transparent 33%),
+    #ecf0f8;
+  color: #0f1524;
+  font-family: "Segoe UI", "Avenir Next", "Trebuchet MS", sans-serif;
+}
+
+.playground-shell {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 16px 28px;
+}
+
+.playground-hero {
+  margin-bottom: 16px;
+}
+
+.playground-hero h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+}
+
+.playground-hero p {
+  margin: 6px 0 0;
+  color: #4d566e;
+}
+
+.playground-status {
+  margin-top: 12px;
+  border: 1px solid #d5dcea;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
