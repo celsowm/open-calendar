@@ -4,7 +4,7 @@ import { Fragment, useCallback, useState } from "react";
 import { areSameDay, getWeekNumber } from "../core/date";
 import { eventIntersectsDay } from "../core/events";
 import { EventPopover } from "../components/EventPopover";
-import type { CalendarEvent } from "../types";
+import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface PopoverState {
   date: Date;
@@ -21,6 +21,8 @@ interface MonthViewProps {
   navLinks: boolean;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
   onNavLinkClick?: (date: Date) => void;
 }
 
@@ -35,6 +37,8 @@ export function MonthView({
   navLinks,
   onDateClick,
   onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave,
   onNavLinkClick
 }: MonthViewProps) {
   const [popover, setPopover] = useState<PopoverState | null>(null);
@@ -117,6 +121,8 @@ export function MonthView({
                       clickEvent.stopPropagation();
                       onEventClick?.(event);
                     }}
+                    onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
+                    onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
                   >
                     {!areSameDay(event.start, day) ? "-> " : ""}
                     {event.title}
@@ -146,6 +152,8 @@ export function MonthView({
           anchorRect={popover.anchorRect}
           locale={locale}
           onEventClick={onEventClick}
+          onEventMouseEnter={onEventMouseEnter}
+          onEventMouseLeave={onEventMouseLeave}
           onClose={closePopover}
         />
       )}

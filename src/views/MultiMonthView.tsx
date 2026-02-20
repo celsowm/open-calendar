@@ -1,7 +1,7 @@
 import { format, isToday, isSameMonth, startOfMonth, startOfWeek, addDays, addMonths } from "date-fns";
 import type { Locale } from "date-fns";
 import { eventIntersectsDay } from "../core/events";
-import type { CalendarEvent } from "../types";
+import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface MultiMonthViewProps {
   date: Date;
@@ -11,6 +11,8 @@ interface MultiMonthViewProps {
   mode: "stack" | "grid";
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
 
 function MiniMonth({
@@ -19,7 +21,9 @@ function MiniMonth({
   locale,
   weekStartsOn,
   onDateClick,
-  onEventClick
+  onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave
 }: {
   monthDate: Date;
   events: CalendarEvent[];
@@ -27,6 +31,8 @@ function MiniMonth({
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }) {
   const monthStart = startOfMonth(monthDate);
   const firstCell = startOfWeek(monthStart, { weekStartsOn });
@@ -68,6 +74,8 @@ function MiniMonth({
                     e.stopPropagation();
                     onEventClick?.(dayEvents[0]);
                   }}
+                  onMouseEnter={(e) => onEventMouseEnter?.({ event: dayEvents[0], domEvent: e })}
+                  onMouseLeave={(e) => onEventMouseLeave?.({ event: dayEvents[0], domEvent: e })}
                 />
               )}
             </div>
@@ -85,7 +93,9 @@ export function MultiMonthView({
   weekStartsOn,
   mode,
   onDateClick,
-  onEventClick
+  onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave
 }: MultiMonthViewProps) {
   const base = startOfMonth(date);
   const months = Array.from({ length: 3 }, (_, i) => addMonths(base, i));
@@ -101,6 +111,8 @@ export function MultiMonthView({
           weekStartsOn={weekStartsOn}
           onDateClick={onDateClick}
           onEventClick={onEventClick}
+          onEventMouseEnter={onEventMouseEnter}
+          onEventMouseLeave={onEventMouseLeave}
         />
       ))}
     </section>

@@ -102,6 +102,8 @@ export function Calendar(props: CalendarProps) {
     onSelect,
     onDateClick,
     onEventClick,
+    onEventMouseEnter,
+    onEventMouseLeave,
     resources = [],
     listRange = 30,
     customViews = []
@@ -162,6 +164,8 @@ export function Calendar(props: CalendarProps) {
         resources={resources}
         onDateClick={onDateClick}
         onEventClick={onEventClick}
+        onEventMouseEnter={onEventMouseEnter}
+        onEventMouseLeave={onEventMouseLeave}
         editable={editable}
         selectable={selectable}
         onSelect={onSelect}
@@ -187,6 +191,8 @@ export function Calendar(props: CalendarProps) {
             navLinks={navLinks}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
             onNavLinkClick={navLinkHandler}
           />
         );
@@ -205,6 +211,8 @@ export function Calendar(props: CalendarProps) {
             businessHours={businessHours}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
             onNavLinkClick={navLinkHandler}
             editable={editable}
             selectable={selectable}
@@ -223,6 +231,8 @@ export function Calendar(props: CalendarProps) {
             events={visibleEvents}
             locale={locale}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
           />
         );
 
@@ -238,6 +248,8 @@ export function Calendar(props: CalendarProps) {
             navLinks={navLinks}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
             onNavLinkClick={navLinkHandler}
           />
         );
@@ -252,6 +264,8 @@ export function Calendar(props: CalendarProps) {
             mode="stack"
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
           />
         );
 
@@ -265,6 +279,8 @@ export function Calendar(props: CalendarProps) {
             mode="grid"
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
           />
         );
 
@@ -277,6 +293,8 @@ export function Calendar(props: CalendarProps) {
             locale={locale}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
           />
         );
 
@@ -291,6 +309,8 @@ export function Calendar(props: CalendarProps) {
             businessHours={businessHours}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
+            onEventMouseEnter={onEventMouseEnter}
+            onEventMouseLeave={onEventMouseLeave}
           />
         );
 

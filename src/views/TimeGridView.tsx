@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { layoutTimedEvents } from "../core/event-layout";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
-import type { BusinessHoursInput, BuiltInViewType, CalendarEvent } from "../types";
+import type { BusinessHoursInput, BuiltInViewType, CalendarEvent, EventMouseInfo } from "../types";
 import type { DragState } from "../hooks/useDrag";
 import type { ResizeState } from "../hooks/useResize";
 import type { SelectionState } from "../hooks/useSelection";
@@ -20,6 +20,8 @@ interface TimeGridViewProps {
   businessHours?: BusinessHoursInput[];
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
   onNavLinkClick?: (date: Date) => void;
   editable?: boolean;
   selectable?: boolean;
@@ -56,6 +58,8 @@ export function TimeGridView({
   businessHours = [],
   onDateClick,
   onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave,
   onNavLinkClick,
   editable = false,
   selectable = false,
@@ -125,6 +129,8 @@ export function TimeGridView({
                   className={`oc-event-chip ${event.className ?? ""}`}
                   style={{ backgroundColor: event.color }}
                   onClick={() => onEventClick?.(event)}
+                  onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
+                  onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
                 >
                   {event.title}
                 </button>
@@ -245,6 +251,12 @@ export function TimeGridView({
                       onClick={(event) => {
                         event.stopPropagation();
                         onEventClick?.(layout.event);
+                      }}
+                      onMouseEnter={(e) => {
+                        onEventMouseEnter?.({ event: layout.event, domEvent: e });
+                      }}
+                      onMouseLeave={(e) => {
+                        onEventMouseLeave?.({ event: layout.event, domEvent: e });
                       }}
                       onPointerDown={(e) => {
                         if (editable && onDragStart) {

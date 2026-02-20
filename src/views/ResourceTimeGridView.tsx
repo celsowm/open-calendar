@@ -5,7 +5,7 @@ import { layoutTimedEvents } from "../core/event-layout";
 import { flattenResources } from "../core/resources";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
-import type { BusinessHoursInput, CalendarEvent, Resource } from "../types";
+import type { BusinessHoursInput, CalendarEvent, EventMouseInfo, Resource } from "../types";
 
 interface ResourceTimeGridViewProps {
   date: Date;
@@ -16,6 +16,8 @@ interface ResourceTimeGridViewProps {
   businessHours?: BusinessHoursInput[];
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
@@ -40,7 +42,9 @@ export function ResourceTimeGridView({
   nowIndicator,
   businessHours = [],
   onDateClick,
-  onEventClick
+  onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave
 }: ResourceTimeGridViewProps) {
   const [now, setNow] = useState(() => new Date());
 
@@ -147,6 +151,8 @@ export function ResourceTimeGridView({
                       event.stopPropagation();
                       onEventClick?.(layout.event);
                     }}
+                    onMouseEnter={(e) => onEventMouseEnter?.({ event: layout.event, domEvent: e })}
+                    onMouseLeave={(e) => onEventMouseLeave?.({ event: layout.event, domEvent: e })}
                   >
                     <span className="oc-resource-grid__event-title">{layout.event.title}</span>
                     <span className="oc-resource-grid__event-time">

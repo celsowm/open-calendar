@@ -2,7 +2,7 @@ import { format, isToday, startOfWeek, addDays } from "date-fns";
 import type { Locale } from "date-fns";
 import type { CSSProperties } from "react";
 import { eventIntersectsDay } from "../core/events";
-import type { CalendarEvent } from "../types";
+import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface DayGridViewProps {
   date: Date;
@@ -13,6 +13,8 @@ interface DayGridViewProps {
   navLinks: boolean;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
   onNavLinkClick?: (date: Date) => void;
 }
 
@@ -27,6 +29,8 @@ export function DayGridView({
   navLinks,
   onDateClick,
   onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave,
   onNavLinkClick
 }: DayGridViewProps) {
   const days =
@@ -86,6 +90,8 @@ export function DayGridView({
                       clickEvent.stopPropagation();
                       onEventClick?.(event);
                     }}
+                    onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
+                    onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
                   >
                     {event.title}
                   </button>

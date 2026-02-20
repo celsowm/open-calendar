@@ -1,6 +1,6 @@
 import { format, startOfDay } from "date-fns";
 import type { Locale } from "date-fns";
-import type { CalendarEvent, Resource } from "../types";
+import type { CalendarEvent, EventMouseInfo, Resource } from "../types";
 import { flattenResources } from "../core/resources";
 
 interface TimelineViewProps {
@@ -10,6 +10,8 @@ interface TimelineViewProps {
   locale?: Locale;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
@@ -32,7 +34,9 @@ export function TimelineView({
   resources,
   locale,
   onDateClick,
-  onEventClick
+  onEventClick,
+  onEventMouseEnter,
+  onEventMouseLeave
 }: TimelineViewProps) {
   const dayStart = startOfDay(date);
   const dayEnd = new Date(dayStart.getTime() + TOTAL_MINUTES * 60_000);
@@ -112,6 +116,8 @@ export function TimelineView({
                         e.stopPropagation();
                         onEventClick?.(event);
                       }}
+                      onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
+                      onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
                     >
                       {event.title}
                     </button>

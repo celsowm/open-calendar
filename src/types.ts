@@ -50,6 +50,10 @@ export interface CustomViewProps {
   onDateClick?: (date: Date) => void;
   /** Handler for event clicks */
   onEventClick?: (event: CalendarEvent) => void;
+  /** Handler for event mouse enter */
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  /** Handler for event mouse leave */
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
   /** Whether editing is enabled */
   editable?: boolean;
   /** Whether selection is enabled */
@@ -121,6 +125,11 @@ export interface EventResizeInfo {
   revert: () => void;
 }
 
+export interface EventMouseInfo {
+  event: CalendarEvent;
+  domEvent: React.MouseEvent;
+}
+
 export interface DateSelectInfo {
   start: Date;
   end: Date;
@@ -140,6 +149,10 @@ export interface CalendarProps {
   businessHours?: BusinessHoursInput[];
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  /** Called when mouse enters an event element */
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  /** Called when mouse leaves an event element */
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
   navLinks?: boolean;
   editable?: boolean;
   onEventDrop?: (info: EventDropInfo) => void;

@@ -1,14 +1,16 @@
 import { format, startOfDay } from "date-fns";
 import type { Locale } from "date-fns";
-import type { CalendarEvent } from "../types";
+import type { CalendarEvent, EventMouseInfo } from "../types";
 
 interface ListViewProps {
   events: CalendarEvent[];
   locale?: Locale;
   onEventClick?: (event: CalendarEvent) => void;
+  onEventMouseEnter?: (info: EventMouseInfo) => void;
+  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
 
-export function ListView({ events, locale, onEventClick }: ListViewProps) {
+export function ListView({ events, locale, onEventClick, onEventMouseEnter, onEventMouseLeave }: ListViewProps) {
   const visibleEvents = events.filter((event) => event.display !== "background");
 
   if (visibleEvents.length === 0) {
@@ -47,6 +49,8 @@ export function ListView({ events, locale, onEventClick }: ListViewProps) {
               className={`oc-list__event ${event.className ?? ""}`}
               style={{ borderLeftColor: event.color }}
               onClick={() => onEventClick?.(event)}
+              onMouseEnter={(e) => onEventMouseEnter?.({ event, domEvent: e })}
+              onMouseLeave={(e) => onEventMouseLeave?.({ event, domEvent: e })}
             >
               <span className="oc-list__event-time">
                 {event.allDay
