@@ -975,6 +975,164 @@
   z-index: 4;
 }
 
+/* Print Styles */
+@media print {
+  .oc-calendar {
+    border: 1px solid #000;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible;
+    break-inside: avoid;
+  }
+
+  .oc-calendar__body {
+    overflow: visible;
+  }
+
+  /* Toolbar: keep title, hide interactive controls */
+  .oc-toolbar {
+    background: none;
+    border-bottom: 1px solid #000;
+    padding: 8px 12px;
+  }
+
+  .oc-toolbar__nav,
+  .oc-toolbar__views {
+    display: none;
+  }
+
+  .oc-toolbar__title {
+    text-align: left;
+    font-size: 1.2rem;
+  }
+
+  /* Buttons should not appear in print */
+  .oc-btn {
+    display: none;
+  }
+
+  /* Hide interactive / ephemeral elements */
+  .oc-popover,
+  .oc-timegrid__resize-handle,
+  .oc-timegrid__selection,
+  .oc-timegrid__now,
+  .oc-resource-grid__now,
+  .oc-more-label {
+    display: none !important;
+  }
+
+  /* Force readable borders everywhere */
+  .oc-month__header-cell,
+  .oc-month__week-number,
+  .oc-day-cell,
+  .oc-timegrid__header,
+  .oc-timegrid__day-label,
+  .oc-timegrid__gutter,
+  .oc-timegrid__gutter-label,
+  .oc-timegrid__allday,
+  .oc-timegrid__allday-cell,
+  .oc-timegrid__times,
+  .oc-timegrid__column,
+  .oc-daygrid__header-cell,
+  .oc-daygrid__col,
+  .oc-list__group,
+  .oc-list__day-header,
+  .oc-list__event,
+  .oc-resource-grid__header,
+  .oc-resource-grid__gutter,
+  .oc-resource-grid__resource-label,
+  .oc-resource-grid__body,
+  .oc-resource-grid__times,
+  .oc-resource-grid__column,
+  .oc-timeline__header,
+  .oc-timeline__sidebar-header,
+  .oc-timeline__row,
+  .oc-timeline__resource-label,
+  .oc-multi-month__header-cell {
+    border-color: #ccc;
+  }
+
+  /* White backgrounds for all cells */
+  .oc-day-cell,
+  .oc-day-cell--today,
+  .oc-daygrid__col,
+  .oc-daygrid__col--today,
+  .oc-timegrid__header,
+  .oc-timegrid__times,
+  .oc-timegrid__column,
+  .oc-resource-grid__column,
+  .oc-resource-grid__times,
+  .oc-resource-grid__header,
+  .oc-timeline__header,
+  .oc-timeline__sidebar-header,
+  .oc-timeline__resource-label,
+  .oc-timeline__lane,
+  .oc-list__day-header,
+  .oc-list__event,
+  .oc-month__week-number {
+    background: #fff;
+  }
+
+  /* Remove overflow so content flows across pages */
+  .oc-timegrid__body,
+  .oc-resource-grid__body,
+  .oc-timeline,
+  .oc-list,
+  .oc-multi-month {
+    overflow: visible;
+  }
+
+  /* Events: print-friendly with borders for B&W */
+  .oc-event-chip {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    border: 1px solid #333;
+  }
+
+  .oc-timegrid__event,
+  .oc-resource-grid__event,
+  .oc-timeline__event {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    box-shadow: none;
+    border: 1px solid #333;
+  }
+
+  .oc-list__event {
+    border-left: 4px solid #333;
+  }
+
+  /* Business hours / background events: lighten for print */
+  .oc-timegrid__business-hours,
+  .oc-resource-grid__business-hours {
+    background: #f5f5f5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .oc-timegrid__background-event,
+  .oc-resource-grid__background-event {
+    background: #eee;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove hover effects */
+  .oc-list__event:hover,
+  .oc-multi-month__cell:hover {
+    background: #fff;
+  }
+
+  /* Remove animations */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @media (max-width: 900px) {
   .oc-toolbar {
     grid-template-columns: 1fr;

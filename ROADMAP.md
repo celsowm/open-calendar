@@ -63,7 +63,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 - [ ] Keyboard drag/resizing parity
 - [ ] Screen reader semantics for all views
 - [ ] Touch-optimized interactions
-- [ ] Print styles and print-specific rendering optimization
+- [x] Print styles and print-specific rendering optimization
 
 ## Phase 7: API / Plugin Parity
 
