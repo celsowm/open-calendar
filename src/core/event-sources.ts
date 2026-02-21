@@ -20,6 +20,20 @@ const DEFAULT_CACHE_DURATION = 10 * 60 * 1000;
 
 /** Event sources cache */
 const eventCache = new Map<string, CacheEntry>();
+const functionSourceIds = new WeakMap<FunctionEventSourceConfig["events"], number>();
+let nextFunctionSourceId = 1;
+
+function getFunctionSourceId(source: { type: "function"; config: FunctionEventSourceConfig }): number {
+  const fn = source.config.events;
+  const existingId = functionSourceIds.get(fn);
+  if (existingId) {
+    return existingId;
+  }
+
+  const newId = nextFunctionSourceId++;
+  functionSourceIds.set(fn, newId);
+  return newId;
+}
 
 /** Generate a cache key for an event source */
 function getCacheKey(source: EventSource, params: EventSourceFetchParams): string {
@@ -39,8 +53,10 @@ function getCacheKey(source: EventSource, params: EventSourceFetchParams): strin
         : source.config.url;
       return `jsonFeed:${url}:${start}:${end}`;
     }
-    case "function":
-      return `function:${start}:${end}`;
+    case "function": {
+      const sourceId = getFunctionSourceId(source);
+      return `function:${sourceId}:${start}:${end}`;
+    }
     case "static":
       return `static:${start}:${end}`;
     default:

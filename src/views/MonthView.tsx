@@ -54,7 +54,10 @@ export function MonthView({
   const cols = weekNumbers ? 8 : 7;
 
   return (
-    <section className="oc-month" style={{ "--oc-month-cols": String(cols) } as React.CSSProperties}>
+    <section
+      className={`oc-month ${weekNumbers ? "oc-month--week-numbers" : ""}`}
+      style={{ "--oc-month-cols": String(cols) } as React.CSSProperties}
+    >
       <div className="oc-month__header">
         {weekNumbers && <div className="oc-month__header-cell oc-month__week-header">{locale.messages.week.charAt(0)}</div>}
         {dayLabels.map((label, index) => (

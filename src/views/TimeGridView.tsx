@@ -72,6 +72,8 @@ export function TimeGridView({
   onSelectionStart
 }: TimeGridViewProps) {
   const [now, setNow] = useState(() => new Date());
+  const [scrollbarWidth, setScrollbarWidth] = useState(0);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!nowIndicator) {
@@ -82,6 +84,32 @@ export function TimeGridView({
     return () => clearInterval(timer);
   }, [nowIndicator]);
 
+  useEffect(() => {
+    const updateScrollbarWidth = () => {
+      const body = bodyRef.current;
+      if (!body) return;
+      const next = Math.max(0, body.offsetWidth - body.clientWidth);
+      setScrollbarWidth((current) => (current === next ? current : next));
+    };
+
+    updateScrollbarWidth();
+
+    const body = bodyRef.current;
+    if (!body || typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateScrollbarWidth);
+      return () => window.removeEventListener("resize", updateScrollbarWidth);
+    }
+
+    const observer = new ResizeObserver(updateScrollbarWidth);
+    observer.observe(body);
+    window.addEventListener("resize", updateScrollbarWidth);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", updateScrollbarWidth);
+    };
+  }, []);
+
   const days = useMemo(() => {
     if (view === "timeGridDay") {
       return [startOfDay(date)];
@@ -91,7 +119,15 @@ export function TimeGridView({
   }, [date, view, weekStartsOn]);
 
   return (
-    <section className="oc-timegrid" style={{ "--oc-columns": String(days.length) } as CSSProperties}>
+    <section
+      className="oc-timegrid"
+      style={
+        {
+          "--oc-columns": String(days.length),
+          "--oc-scrollbar-width": `${scrollbarWidth}px`
+        } as CSSProperties
+      }
+    >
       <div className="oc-timegrid__header">
         <div className="oc-timegrid__gutter" />
         {days.map((day) => {
@@ -137,7 +173,7 @@ export function TimeGridView({
         })}
       </div>
 
-      <div className="oc-timegrid__body">
+      <div ref={bodyRef} className="oc-timegrid__body">
         <div className="oc-timegrid__times">
           {HOURS.map((hour) => (
             <div key={hour} className="oc-timegrid__time-label">

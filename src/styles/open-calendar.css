@@ -115,6 +115,11 @@
   grid-template-columns: repeat(var(--oc-month-cols, 7), minmax(0, 1fr));
 }
 
+.oc-month--week-numbers .oc-month__header,
+.oc-month--week-numbers .oc-month__grid {
+  grid-template-columns: 40px repeat(7, minmax(0, 1fr));
+}
+
 .oc-month__header-cell {
   padding: 10px 8px;
   text-transform: uppercase;
@@ -132,14 +137,14 @@
 }
 
 .oc-month__week-header {
-  max-width: 40px;
+  width: 40px;
 }
 
 .oc-month__week-number {
   display: flex;
   align-items: center;
   justify-content: center;
-  max-width: 40px;
+  width: 40px;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--oc-muted);
@@ -360,6 +365,7 @@
 .oc-timegrid__allday {
   display: grid;
   grid-template-columns: 64px repeat(var(--oc-columns, 1), minmax(0, 1fr));
+  padding-right: var(--oc-scrollbar-width, 0px);
 }
 
 .oc-timegrid__header {

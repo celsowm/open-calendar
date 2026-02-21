@@ -343,5 +343,27 @@ describe("Event Sources", () => {
       await fetchFromSource(source, params);
       expect(callCount).toBe(2);
     });
+
+    it("keeps cache isolated between different function sources", async () => {
+      const sourceA = createFunctionSource({
+        events: () => [{ id: "a", title: "Source A", start: new Date("2024-01-15") }]
+      });
+      const sourceB = createFunctionSource({
+        events: () => [{ id: "b", title: "Source B", start: new Date("2024-01-16") }]
+      });
+
+      const params: EventSourceFetchParams = {
+        start: new Date("2024-01-01"),
+        end: new Date("2024-01-31")
+      };
+
+      const resultA = await fetchFromSource(sourceA, params);
+      const resultB = await fetchFromSource(sourceB, params);
+
+      expect(resultA).toHaveLength(1);
+      expect(resultA[0].title).toBe("Source A");
+      expect(resultB).toHaveLength(1);
+      expect(resultB[0].title).toBe("Source B");
+    });
   });
 });

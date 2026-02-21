@@ -7,7 +7,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest run",
-    "dev": "vite playground --host --port 5174",
+    "dev": "npm run playground",
+    "playground": "vite playground --host --port 5178",
     "build": "tsup src/index.ts --format esm,cjs --dts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",

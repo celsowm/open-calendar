@@ -20,48 +20,49 @@ export interface CalendarState {
 }
 
 export class CalendarApi implements ICalendarApi {
-  private state: CalendarState;
+  private getState: () => CalendarState;
   private getVisibleRange: () => DateRange;
   private getTitle: () => string;
   private getAllEvents: () => CalendarEvent[];
   private addNewEvent: (event: CalendarEventInput) => string;
   private deleteEvent: (eventId: string) => void;
   private deleteAllEvents: () => void;
-  private eventSources: EventSource[];
+  private getAllEventSources: () => EventSource[];
   private addNewEventSource: (source: EventSource) => void;
   private deleteEventSource: (source: EventSource) => void;
   private doRefetchEvents: () => void;
 
   constructor(
-    state: CalendarState,
+    getState: () => CalendarState,
     getVisibleRange: () => DateRange,
     getTitle: () => string,
     getAllEvents: () => CalendarEvent[],
     addNewEvent: (event: CalendarEventInput) => string,
     deleteEvent: (eventId: string) => void,
     deleteAllEvents: () => void,
-    eventSources: EventSource[],
+    getAllEventSources: () => EventSource[],
     addNewEventSource: (source: EventSource) => void,
     deleteEventSource: (source: EventSource) => void,
     refetchEvents: () => void
   ) {
-    this.state = state;
+    this.getState = getState;
     this.getVisibleRange = getVisibleRange;
     this.getTitle = getTitle;
     this.getAllEvents = getAllEvents;
     this.addNewEvent = addNewEvent;
     this.deleteEvent = deleteEvent;
     this.deleteAllEvents = deleteAllEvents;
-    this.eventSources = eventSources;
+    this.getAllEventSources = getAllEventSources;
     this.addNewEventSource = addNewEventSource;
     this.deleteEventSource = deleteEventSource;
     this.doRefetchEvents = refetchEvents;
   }
 
   getView(): CalendarViewInfo {
+    const state = this.getState();
     const range = this.getVisibleRange();
     return {
-      type: this.state.view,
+      type: state.view,
       title: this.getTitle(),
       start: range.start,
       end: range.end
@@ -69,32 +70,33 @@ export class CalendarApi implements ICalendarApi {
   }
 
   getDate(): Date {
-    return this.state.currentDate;
+    return this.getState().currentDate;
   }
 
   gotoDate(date: Date | string | number): void {
-    this.state.setCurrentDate(toDate(date));
+    this.getState().setCurrentDate(toDate(date));
   }
 
   incrementDate(duration: { years?: number; months?: number; days?: number }): void {
-    const newDate = addDuration(this.state.currentDate, duration);
-    this.state.setCurrentDate(newDate);
+    const state = this.getState();
+    const newDate = addDuration(state.currentDate, duration);
+    state.setCurrentDate(newDate);
   }
 
   prev(): void {
-    this.state.goToPrevious();
+    this.getState().goToPrevious();
   }
 
   next(): void {
-    this.state.goToNext();
+    this.getState().goToNext();
   }
 
   today(): void {
-    this.state.goToToday();
+    this.getState().goToToday();
   }
 
   changeView(view: CalendarView): void {
-    this.state.setView(view);
+    this.getState().setView(view);
   }
 
   getEvents(): CalendarEvent[] {
@@ -119,7 +121,7 @@ export class CalendarApi implements ICalendarApi {
   }
 
   getEventSources(): EventSource[] {
-    return [...this.eventSources];
+    return [...this.getAllEventSources()];
   }
 
   addEventSource(source: EventSource): void {

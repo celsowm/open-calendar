@@ -1,6 +1,6 @@
 import clsx from "clsx";
-import { addMinutes, format, startOfDay } from "date-fns";
-import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef, type CSSProperties, type Ref } from "react";
+import { format } from "date-fns";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef, type Ref } from "react";
 import { getViewRange } from "../core/date";
 import { expandRecurringEvents, normalizeEvents } from "../core/events";
 import { CalendarApi } from "../core/calendar-api";
@@ -17,9 +17,8 @@ import { DayGridView } from "../views/DayGridView";
 import { MultiMonthView } from "../views/MultiMonthView";
 import { TimelineView } from "../views/TimelineView";
 import { ResourceTimeGridView } from "../views/ResourceTimeGridView";
-import type { BuiltInViewType, CalendarLocale, CalendarProps, CalendarView, CustomViewConfig, CalendarEventInput, CalendarApi as ICalendarApi, EventSource } from "../types";
-import { getLocaleData, DEFAULT_MESSAGES } from "../locales";
-import type { Locale } from "date-fns";
+import type { CalendarLocale, CalendarProps, CalendarView, CustomViewConfig, CalendarEventInput, CalendarApi as ICalendarApi, EventSource } from "../types";
+import { getLocaleData } from "../locales";
 
 function buildTitle(
   view: CalendarView,
@@ -162,10 +161,20 @@ export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: 
 
   const availableViews = useMemo(() => getAvailableViews(props, localeData), [props.resources, props.customViews, localeData]);
 
-  // Helper functions for the API
-  const getVisibleRange = () => visibleRange;
-  const getTitle = () => title;
-  const getAllEvents = () => sourceEvents;
+  // Keep latest values accessible from a stable API instance.
+  const stateRef = useRef(state);
+  const visibleRangeRef = useRef(visibleRange);
+  const titleRef = useRef(title);
+  const normalizedEventsRef = useRef(normalizedEvents);
+  const eventSourcesRef = useRef(internalEventSources);
+  const fetchForRangeRef = useRef(fetchForRange);
+
+  stateRef.current = state;
+  visibleRangeRef.current = visibleRange;
+  titleRef.current = title;
+  normalizedEventsRef.current = normalizedEvents;
+  eventSourcesRef.current = internalEventSources;
+  fetchForRangeRef.current = fetchForRange;
   
   const addNewEvent = (event: CalendarEventInput): string => {
     const id = event.id ?? `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -192,7 +201,7 @@ export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: 
   
   const deleteEventSource = (source: EventSource) => {
     setInternalEventSources(prev => {
-      const index = prev.findIndex(s => JSON.stringify(s) === JSON.stringify(source));
+      const index = prev.findIndex(s => s === source);
       if (index >= 0) {
         const newSources = [...prev];
         newSources.splice(index, 1);
@@ -202,37 +211,35 @@ export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: 
     });
   };
 
-  // Create and expose the API
-  const refetchEvents = () => {
-    fetchForRange(visibleRange.start, visibleRange.end);
-  };
-
-  const apiRef = useMemo(
-    () => new CalendarApi(
-      state, 
-      getVisibleRange, 
-      getTitle, 
-      () => normalizedEvents, 
-      addNewEvent, 
+  const apiRef = useRef<ICalendarApi | null>(null);
+  if (!apiRef.current) {
+    apiRef.current = new CalendarApi(
+      () => stateRef.current,
+      () => visibleRangeRef.current,
+      () => titleRef.current,
+      () => normalizedEventsRef.current,
+      addNewEvent,
       deleteEvent,
       deleteAllEvents,
-      internalEventSources, 
-      addNewEventSource, 
+      () => eventSourcesRef.current,
+      addNewEventSource,
       deleteEventSource,
-      refetchEvents
-    ),
-    [state, visibleRange, title, normalizedEvents, internalEventSources, refetchEvents]
-  );
+      () => {
+        const currentRange = visibleRangeRef.current;
+        void fetchForRangeRef.current(currentRange.start, currentRange.end);
+      }
+    );
+  }
 
   // Expose API via ref
-  useImperativeHandle(ref, () => apiRef, [apiRef]);
+  useImperativeHandle(ref, () => apiRef.current as ICalendarApi, []);
 
   // Call onReady callback when API is ready
   useEffect(() => {
     if (onReady) {
-      onReady(apiRef);
+      onReady(apiRef.current as ICalendarApi);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [onReady]);
 
   const navLinkHandler = (clickedDate: Date) => {
     state.setCurrentDate(clickedDate);
