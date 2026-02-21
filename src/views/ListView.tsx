@@ -1,10 +1,10 @@
 import { format, startOfDay } from "date-fns";
 import type { Locale } from "date-fns";
-import type { CalendarEvent, EventMouseInfo } from "../types";
+import type { CalendarEvent, CalendarLocale, EventMouseInfo } from "../types";
 
 interface ListViewProps {
   events: CalendarEvent[];
-  locale?: Locale;
+  locale?: CalendarLocale;
   onEventClick?: (event: CalendarEvent) => void;
   onEventMouseEnter?: (info: EventMouseInfo) => void;
   onEventMouseLeave?: (info: EventMouseInfo) => void;
@@ -16,7 +16,7 @@ export function ListView({ events, locale, onEventClick, onEventMouseEnter, onEv
   if (visibleEvents.length === 0) {
     return (
       <section className="oc-list">
-        <p className="oc-list__empty">No events</p>
+        <p className="oc-list__empty">{locale?.messages.noEvents ?? "No events"}</p>
       </section>
     );
   }
@@ -39,7 +39,7 @@ export function ListView({ events, locale, onEventClick, onEventMouseEnter, onEv
       {[...groups.entries()].map(([dayKey, dayEvents]) => (
         <div key={dayKey} className="oc-list__group">
           <div className="oc-list__day-header">
-            {format(new Date(dayKey), "EEEE, MMM dd yyyy", { locale })}
+            {format(new Date(dayKey), "EEEE, MMM dd yyyy", { locale: locale?.dateFnsLocale })}
           </div>
 
           {dayEvents.map((event) => (
@@ -54,8 +54,8 @@ export function ListView({ events, locale, onEventClick, onEventMouseEnter, onEv
             >
               <span className="oc-list__event-time">
                 {event.allDay
-                  ? "All-day"
-                  : `${format(event.start, "HH:mm", { locale })} - ${format(event.end, "HH:mm", { locale })}`}
+                  ? (locale?.messages.allDay ?? "All-day")
+                  : `${format(event.start, "HH:mm", { locale: locale?.dateFnsLocale })} - ${format(event.end, "HH:mm", { locale: locale?.dateFnsLocale })}`}
               </span>
               <span className="oc-list__event-title">{event.title}</span>
             </button>

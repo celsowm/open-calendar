@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
-import { format, addDays, startOfWeek } from "date-fns";
-import { Calendar } from "../src";
-import type { CalendarView, CustomViewConfig, CustomViewProps } from "../src/types";
+import { format, addDays } from "date-fns";
+import { Calendar, DEFAULT_LOCALE, PT_BR_LOCALE, ES_LOCALE } from "../src";
+import type { CalendarView, CustomViewConfig, CustomViewProps, CalendarLocale } from "../src/types";
 import { demoEvents, demoResources } from "./demo-events";
 import "../src/styles/open-calendar.css";
 import "./styles.css";
@@ -10,7 +10,7 @@ import "./styles.css";
 // Example custom view: A simple 3-day view
 function ThreeDayView({ date, events, locale, onEventClick }: CustomViewProps) {
   const days = [0, 1, 2].map((offset) => addDays(date, offset));
-  
+
   return (
     <div className="oc-three-day-view">
       <div className="oc-three-day-view__header">
@@ -27,7 +27,7 @@ function ThreeDayView({ date, events, locale, onEventClick }: CustomViewProps) {
             const eventDate = new Date(e.start);
             return eventDate.toDateString() === day.toDateString();
           });
-          
+
           return (
             <div key={day.toISOString()} className="oc-three-day-view__day-column">
               {dayEvents.length === 0 ? (
@@ -83,9 +83,16 @@ const VIEW_OPTIONS: Array<{ label: string; value: CalendarView }> = [
   { label: "Resources", value: "resourceTimeGrid" }
 ];
 
+const LOCALES = [
+  { label: "English", value: DEFAULT_LOCALE },
+  { label: "Português", value: PT_BR_LOCALE },
+  { label: "Español", value: ES_LOCALE }
+];
+
 function PlaygroundApp() {
   const [message, setMessage] = useState("Click on an event or time slot.");
   const [view, setView] = useState<CalendarView>("month");
+  const [locale, setLocale] = useState<CalendarLocale>(DEFAULT_LOCALE);
 
   return (
     <main className="playground-shell">
@@ -94,23 +101,38 @@ function PlaygroundApp() {
         <p>Freemium-free modern scheduler starter.</p>
       </section>
 
-      <div className="playground-view-picker">
-        {VIEW_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            className={`playground-view-btn ${opt.value === view ? "playground-view-btn--active" : ""}`}
-            onClick={() => setView(opt.value)}
-          >
-            {opt.label}
-          </button>
-        ))}
+      <div className="playground-controls">
+        <div className="playground-view-picker">
+          {VIEW_OPTIONS.map((opt) => (
+            <button
+              key={opt.value}
+              className={`playground-view-btn ${opt.value === view ? "playground-view-btn--active" : ""}`}
+              onClick={() => setView(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="playground-locale-picker">
+          {LOCALES.map((loc) => (
+            <button
+              key={loc.value.code}
+              className={`playground-view-btn ${loc.value.code === locale.code ? "playground-view-btn--active" : ""}`}
+              onClick={() => setLocale(loc.value)}
+            >
+              {loc.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Calendar
         events={demoEvents}
         resources={demoResources}
         initialView={view}
-        key={view}
+        key={`${view}-${locale.code}`}
+        locale={locale}
         customViews={customViews}
         editable
         selectable

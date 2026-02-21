@@ -4,6 +4,7 @@ export function Toolbar({
   title,
   view,
   availableViews,
+  messages,
   onToday,
   onPrev,
   onNext,
@@ -13,12 +14,12 @@ export function Toolbar({
     <header className="oc-toolbar">
       <div className="oc-toolbar__nav">
         <button type="button" className="oc-btn oc-btn--ghost" onClick={onToday}>
-          Today
+          {messages.today}
         </button>
-        <button type="button" className="oc-btn oc-btn--icon" onClick={onPrev} aria-label="Previous">
+        <button type="button" className="oc-btn oc-btn--icon" onClick={onPrev} aria-label={messages.prev}>
           <span aria-hidden="true">&lt;</span>
         </button>
-        <button type="button" className="oc-btn oc-btn--icon" onClick={onNext} aria-label="Next">
+        <button type="button" className="oc-btn oc-btn--icon" onClick={onNext} aria-label={messages.next}>
           <span aria-hidden="true">&gt;</span>
         </button>
       </div>

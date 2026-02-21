@@ -16,27 +16,18 @@ import { DayGridView } from "../views/DayGridView";
 import { MultiMonthView } from "../views/MultiMonthView";
 import { TimelineView } from "../views/TimelineView";
 import { ResourceTimeGridView } from "../views/ResourceTimeGridView";
-import type { BuiltInViewType, CalendarProps, CalendarView, CustomViewConfig } from "../types";
-
-const VIEW_LABELS: Record<BuiltInViewType, string> = {
-  month: "Month",
-  timeGridWeek: "Week",
-  timeGridDay: "Day",
-  list: "List",
-  dayGridWeek: "DayGrid Week",
-  dayGridDay: "DayGrid Day",
-  multiMonthStack: "Multi-Month",
-  multiMonthGrid: "Multi-Month Grid",
-  timeline: "Timeline",
-  resourceTimeGrid: "Resources"
-};
+import type { BuiltInViewType, CalendarLocale, CalendarProps, CalendarView, CustomViewConfig } from "../types";
+import { getLocaleData, DEFAULT_MESSAGES } from "../locales";
+import type { Locale } from "date-fns";
 
 function buildTitle(
   view: CalendarView,
   date: Date,
-  locale: CalendarProps["locale"],
+  localeData: CalendarLocale,
   customViews?: CustomViewConfig[]
 ): string {
+  const { dateFnsLocale: locale, messages } = localeData;
+
   // Check for custom view title formatter
   const customView = customViews?.find((cv) => cv.type === view);
   if (customView?.titleFormat) {
@@ -48,10 +39,10 @@ function buildTitle(
     return format(date, "EEEE, MMM d yyyy", { locale });
   }
   if (view === "timeGridWeek" || view === "dayGridWeek") {
-    return `${format(date, "MMM d", { locale })} week`;
+    return `${format(date, "MMM d", { locale })} ${messages.week}`;
   }
   if (view === "list") {
-    return `${format(date, "MMM d", { locale })} — upcoming`;
+    return `${format(date, "MMM d", { locale })} — ${messages.list}`;
   }
   if (view === "multiMonthStack" || view === "multiMonthGrid") {
     return format(date, "MMMM yyyy", { locale });
@@ -59,17 +50,19 @@ function buildTitle(
   return format(date, "MMMM yyyy", { locale });
 }
 
-function getAvailableViews(props: CalendarProps) {
+function getAvailableViews(props: CalendarProps, localeData: CalendarLocale) {
+  const { messages } = localeData;
+
   const views: Array<{ label: string; value: CalendarView }> = [
-    { label: VIEW_LABELS.month, value: "month" },
-    { label: VIEW_LABELS.timeGridWeek, value: "timeGridWeek" },
-    { label: VIEW_LABELS.timeGridDay, value: "timeGridDay" }
+    { label: messages.viewMonth, value: "month" },
+    { label: messages.viewWeek, value: "timeGridWeek" },
+    { label: messages.viewDay, value: "timeGridDay" }
   ];
 
   if (props.resources && props.resources.length > 0) {
     views.push(
-      { label: VIEW_LABELS.timeline, value: "timeline" },
-      { label: VIEW_LABELS.resourceTimeGrid, value: "resourceTimeGrid" }
+      { label: messages.viewTimeline, value: "timeline" },
+      { label: messages.viewResources, value: "resourceTimeGrid" }
     );
   }
 
@@ -111,6 +104,8 @@ export function Calendar(props: CalendarProps) {
     customViews = []
   } = props;
 
+  const localeData = useMemo(() => getLocaleData(locale), [locale]);
+
   const state = useCalendarState({ initialDate, initialView, customViews });
   const { dragState, handlePointerDown } = useDrag({ enabled: editable, onEventDrop });
   const { resizeState, handleResizePointerDown } = useResize({ enabled: editable, onEventResize });
@@ -127,7 +122,7 @@ export function Calendar(props: CalendarProps) {
 
   // Normalize all events (from static + sources)
   const normalizedEvents = useMemo(() => normalizeEvents(sourceEvents), [sourceEvents]);
-  
+
   // Get custom view date range if applicable
   const customViewRange = useMemo(() => {
     const customView = customViews.find((cv) => cv.type === state.view);
@@ -155,11 +150,11 @@ export function Calendar(props: CalendarProps) {
   );
 
   const title = useMemo(
-    () => buildTitle(state.view, state.currentDate, locale, customViews),
-    [locale, state.currentDate, state.view, customViews]
+    () => buildTitle(state.view, state.currentDate, localeData, customViews),
+    [localeData, state.currentDate, state.view, customViews]
   );
 
-  const availableViews = useMemo(() => getAvailableViews(props), [props.resources, props.customViews]);
+  const availableViews = useMemo(() => getAvailableViews(props, localeData), [props.resources, props.customViews, localeData]);
 
   const navLinkHandler = (clickedDate: Date) => {
     state.setCurrentDate(clickedDate);
@@ -169,13 +164,14 @@ export function Calendar(props: CalendarProps) {
   const renderCustomView = () => {
     const customView = customViews.find((cv) => cv.type === state.view);
     if (!customView) return null;
-    
+
     const CustomComponent = customView.component;
     return (
       <CustomComponent
         date={state.currentDate}
         events={visibleEvents}
-        locale={locale}
+        locale={localeData.dateFnsLocale}
+        localeData={localeData}
         weekStartsOn={weekStartsOn}
         resources={resources}
         onDateClick={onDateClick}
@@ -201,7 +197,7 @@ export function Calendar(props: CalendarProps) {
           <MonthView
             date={state.currentDate}
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             weekStartsOn={weekStartsOn}
             weekNumbers={weekNumbers}
             navLinks={navLinks}
@@ -219,7 +215,7 @@ export function Calendar(props: CalendarProps) {
           <TimeGridView
             date={state.currentDate}
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             weekStartsOn={weekStartsOn}
             view={state.view}
             navLinks={navLinks}
@@ -245,7 +241,7 @@ export function Calendar(props: CalendarProps) {
         return (
           <ListView
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             onEventClick={onEventClick}
             onEventMouseEnter={onEventMouseEnter}
             onEventMouseLeave={onEventMouseLeave}
@@ -258,7 +254,7 @@ export function Calendar(props: CalendarProps) {
           <DayGridView
             date={state.currentDate}
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             weekStartsOn={weekStartsOn}
             view={state.view}
             navLinks={navLinks}
@@ -275,7 +271,7 @@ export function Calendar(props: CalendarProps) {
           <MultiMonthView
             date={state.currentDate}
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             weekStartsOn={weekStartsOn}
             mode="stack"
             onDateClick={onDateClick}
@@ -290,7 +286,7 @@ export function Calendar(props: CalendarProps) {
           <MultiMonthView
             date={state.currentDate}
             events={visibleEvents}
-            locale={locale}
+            locale={localeData}
             weekStartsOn={weekStartsOn}
             mode="grid"
             onDateClick={onDateClick}
@@ -306,7 +302,7 @@ export function Calendar(props: CalendarProps) {
             date={state.currentDate}
             events={visibleEvents}
             resources={resources}
-            locale={locale}
+            locale={localeData}
             onDateClick={onDateClick}
             onEventClick={onEventClick}
             onEventMouseEnter={onEventMouseEnter}
@@ -320,7 +316,7 @@ export function Calendar(props: CalendarProps) {
             date={state.currentDate}
             events={visibleEvents}
             resources={resources}
-            locale={locale}
+            locale={localeData}
             nowIndicator={nowIndicator}
             businessHours={businessHours}
             onDateClick={onDateClick}
@@ -341,6 +337,7 @@ export function Calendar(props: CalendarProps) {
         title={title}
         view={state.view}
         availableViews={availableViews}
+        messages={localeData.messages}
         onToday={state.goToToday}
         onPrev={state.goToPrevious}
         onNext={state.goToNext}

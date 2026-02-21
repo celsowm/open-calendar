@@ -5,7 +5,7 @@ import { layoutTimedEvents } from "../core/event-layout";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
 import { EventItem } from "../components/EventItem";
-import type { BusinessHoursInput, BuiltInViewType, CalendarEvent, EventMouseInfo } from "../types";
+import type { BusinessHoursInput, BuiltInViewType, CalendarEvent, CalendarLocale, EventMouseInfo } from "../types";
 import type { DragState } from "../hooks/useDrag";
 import type { ResizeState } from "../hooks/useResize";
 import type { SelectionState } from "../hooks/useSelection";
@@ -13,7 +13,7 @@ import type { SelectionState } from "../hooks/useSelection";
 interface TimeGridViewProps {
   date: Date;
   events: CalendarEvent[];
-  locale?: Locale;
+  locale?: CalendarLocale;
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   view: Extract<BuiltInViewType, "timeGridWeek" | "timeGridDay">;
   nowIndicator: boolean;
@@ -95,7 +95,7 @@ export function TimeGridView({
       <div className="oc-timegrid__header">
         <div className="oc-timegrid__gutter" />
         {days.map((day) => {
-          const label = format(day, "EEE d", { locale });
+          const label = format(day, "EEE d", { locale: locale?.dateFnsLocale });
           const isCurrentDay = isToday(day);
           return navLinks ? (
             <button
@@ -118,7 +118,7 @@ export function TimeGridView({
       </div>
 
       <div className="oc-timegrid__allday">
-        <div className="oc-timegrid__gutter-label">All-day</div>
+        <div className="oc-timegrid__gutter-label">{locale?.messages.allDay ?? "All-day"}</div>
         {days.map((day) => {
           const allDayEvents = events.filter((event) => eventIntersectsDay(event, day) && event.allDay);
           return (

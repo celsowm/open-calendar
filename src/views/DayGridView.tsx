@@ -3,19 +3,11 @@ import type { Locale } from "date-fns";
 import type { CSSProperties } from "react";
 import { eventIntersectsDay } from "../core/events";
 import { EventItem } from "../components/EventItem";
-import type { CalendarEvent, EventMouseInfo } from "../types";
+import type { CalendarEvent, CommonViewProps, EventMouseInfo } from "../types";
 
-interface DayGridViewProps {
-  date: Date;
-  events: CalendarEvent[];
-  locale?: Locale;
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+interface DayGridViewProps extends CommonViewProps {
   view: "dayGridWeek" | "dayGridDay";
   navLinks: boolean;
-  onDateClick?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventMouseEnter?: (info: EventMouseInfo) => void;
-  onEventMouseLeave?: (info: EventMouseInfo) => void;
   onNavLinkClick?: (date: Date) => void;
 }
 
@@ -37,8 +29,8 @@ export function DayGridView({
   const days =
     view === "dayGridWeek"
       ? Array.from({ length: 7 }, (_, index) =>
-          addDays(startOfWeek(date, { weekStartsOn }), index)
-        )
+        addDays(startOfWeek(date, { weekStartsOn }), index)
+      )
       : [date];
 
   return (
@@ -55,11 +47,11 @@ export function DayGridView({
                 className="oc-daygrid__header-label oc-link-reset"
                 onClick={() => onNavLinkClick?.(day)}
               >
-                {format(day, "EEE d", { locale })}
+                {format(day, "EEE d", { locale: locale.dateFnsLocale })}
               </button>
             ) : (
               <span className="oc-daygrid__header-label">
-                {format(day, "EEE d", { locale })}
+                {format(day, "EEE d", { locale: locale.dateFnsLocale })}
               </span>
             )}
           </div>
@@ -92,7 +84,7 @@ export function DayGridView({
                 ))}
 
                 {overflowCount > 0 ? (
-                  <span className="oc-more-label">+{overflowCount} more</span>
+                  <span className="oc-more-label">+{overflowCount} {locale.messages.moreEvents}</span>
                 ) : null}
               </div>
             </div>

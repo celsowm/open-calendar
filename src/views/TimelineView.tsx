@@ -1,18 +1,12 @@
 import { format, startOfDay } from "date-fns";
 import type { Locale } from "date-fns";
-import type { CalendarEvent, EventMouseInfo, Resource } from "../types";
+import type { CalendarEvent, CommonViewProps, EventMouseInfo, Resource } from "../types";
 import { flattenResources } from "../core/resources";
 
-interface TimelineViewProps {
-  date: Date;
-  events: CalendarEvent[];
+interface TimelineViewProps extends Omit<CommonViewProps, "weekStartsOn"> {
   resources: Resource[];
-  locale?: Locale;
-  onDateClick?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventMouseEnter?: (info: EventMouseInfo) => void;
-  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
+
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 const TOTAL_MINUTES = 24 * 60;
@@ -53,7 +47,7 @@ export function TimelineView({
               className="oc-timeline__hour-header"
               style={{ flex: 1, textAlign: "center" }}
             >
-              {format(new Date(dayStart.getTime() + hour * 60 * 60_000), "HH':00'", { locale })}
+              {format(new Date(dayStart.getTime() + hour * 60 * 60_000), "HH':00'", { locale: locale.dateFnsLocale })}
             </div>
           ))}
         </div>

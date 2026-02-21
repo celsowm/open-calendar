@@ -35,17 +35,15 @@ export interface CustomViewConfig {
   dateRange?: (date: Date, weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6) => { start: Date; end: Date };
 }
 
-export interface CustomViewProps {
+export interface CommonViewProps {
   /** Current date being displayed */
   date: Date;
   /** Events visible in the current range */
   events: CalendarEvent[];
-  /** Current locale */
-  locale?: Locale;
+  /** Current locale and translations */
+  locale: CalendarLocale;
   /** Day the week starts on (0=Sunday, 1=Monday, etc.) */
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-  /** Resources for resource-based views */
-  resources?: Resource[];
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Handler for date clicks */
   onDateClick?: (date: Date) => void;
   /** Handler for event clicks */
@@ -61,6 +59,16 @@ export interface CustomViewProps {
   /** Handler for date selection */
   onSelect?: (info: DateSelectInfo) => void;
 }
+
+export interface CustomViewProps extends Omit<CommonViewProps, "locale"> {
+  /** Current locale (date-fns for backward compat/custom use) */
+  locale?: Locale;
+  /** Original locale data */
+  localeData?: CalendarLocale;
+  /** Resources for resource-based views */
+  resources?: Resource[];
+}
+
 
 export type EventDisplay = "auto" | "background" | "compact" | "dot" | "list-item";
 
@@ -137,6 +145,33 @@ export interface DateSelectInfo {
   resourceId?: string;
 }
 
+export interface TranslationMessages {
+  today: string;
+  next: string;
+  prev: string;
+  allDay: string;
+  week: string;
+  day: string;
+  month: string;
+  list: string;
+  moreEvents: string;
+  noEvents: string;
+  close: string;
+  // View labels
+  viewMonth: string;
+  viewWeek: string;
+  viewDay: string;
+  viewList: string;
+  viewTimeline: string;
+  viewResources: string;
+}
+
+export interface CalendarLocale {
+  code: string;
+  dateFnsLocale: Locale;
+  messages: TranslationMessages;
+}
+
 export interface CalendarProps {
   /** Static events array. Optional if using eventSources */
   events?: CalendarEventInput[];
@@ -146,7 +181,8 @@ export interface CalendarProps {
   initialView?: CalendarView;
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   nowIndicator?: boolean;
-  locale?: Locale;
+  /** Locale configuration. Can be a CalendarLocale object or a date-fns Locale. */
+  locale?: CalendarLocale | Locale;
   className?: string;
   height?: number | string;
   businessHours?: BusinessHoursInput[];
@@ -247,6 +283,7 @@ export interface ToolbarProps {
   title: string;
   view: CalendarView;
   availableViews: Array<{ label: string; value: CalendarView }>;
+  messages: TranslationMessages;
   onToday: () => void;
   onPrev: () => void;
   onNext: () => void;

@@ -5,20 +5,14 @@ import { layoutTimedEvents } from "../core/event-layout";
 import { flattenResources } from "../core/resources";
 import { eventIntersectsDay } from "../core/events";
 import { parseTimeToMinutes } from "../core/date";
-import type { BusinessHoursInput, CalendarEvent, EventMouseInfo, Resource } from "../types";
+import type { BusinessHoursInput, CalendarEvent, CommonViewProps, EventMouseInfo, Resource } from "../types";
 
-interface ResourceTimeGridViewProps {
-  date: Date;
-  events: CalendarEvent[];
+interface ResourceTimeGridViewProps extends Omit<CommonViewProps, "weekStartsOn"> {
   resources: Resource[];
-  locale?: Locale;
   nowIndicator: boolean;
   businessHours?: BusinessHoursInput[];
-  onDateClick?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventMouseEnter?: (info: EventMouseInfo) => void;
-  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
+
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
@@ -156,7 +150,7 @@ export function ResourceTimeGridView({
                   >
                     <span className="oc-resource-grid__event-title">{layout.event.title}</span>
                     <span className="oc-resource-grid__event-time">
-                      {format(layout.event.start, "HH:mm")} - {format(layout.event.end, "HH:mm")}
+                      {format(layout.event.start, "HH:mm", { locale: locale.dateFnsLocale })} - {format(layout.event.end, "HH:mm", { locale: locale.dateFnsLocale })}
                     </span>
                   </button>
                 ))}

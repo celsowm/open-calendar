@@ -1,18 +1,10 @@
 import { format, isToday, isSameMonth, startOfMonth, startOfWeek, addDays, addMonths } from "date-fns";
 import type { Locale } from "date-fns";
 import { eventIntersectsDay } from "../core/events";
-import type { CalendarEvent, EventMouseInfo } from "../types";
+import type { CalendarEvent, CalendarLocale, CommonViewProps, EventMouseInfo } from "../types";
 
-interface MultiMonthViewProps {
-  date: Date;
-  events: CalendarEvent[];
-  locale?: Locale;
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+interface MultiMonthViewProps extends CommonViewProps {
   mode: "stack" | "grid";
-  onDateClick?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventMouseEnter?: (info: EventMouseInfo) => void;
-  onEventMouseLeave?: (info: EventMouseInfo) => void;
 }
 
 function MiniMonth({
@@ -27,7 +19,7 @@ function MiniMonth({
 }: {
   monthDate: Date;
   events: CalendarEvent[];
-  locale?: Locale;
+  locale: CalendarLocale;
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   onDateClick?: (date: Date) => void;
   onEventClick?: (event: CalendarEvent) => void;
@@ -37,13 +29,13 @@ function MiniMonth({
   const monthStart = startOfMonth(monthDate);
   const firstCell = startOfWeek(monthStart, { weekStartsOn });
   const dayLabels = Array.from({ length: 7 }, (_, index) =>
-    format(addDays(firstCell, index), "EEE", { locale })
+    format(addDays(firstCell, index), "EEE", { locale: locale.dateFnsLocale })
   );
   const monthDays = Array.from({ length: 42 }, (_, index) => addDays(firstCell, index));
 
   return (
     <div className="oc-multi-month__month">
-      <div className="oc-multi-month__title">{format(monthStart, "MMMM yyyy", { locale })}</div>
+      <div className="oc-multi-month__title">{format(monthStart, "MMMM yyyy", { locale: locale.dateFnsLocale })}</div>
 
       <div className="oc-multi-month__header">
         {dayLabels.map((label, index) => (
@@ -61,9 +53,8 @@ function MiniMonth({
           return (
             <div
               key={day.toISOString()}
-              className={`oc-multi-month__cell ${isCurrentMonth ? "" : "oc-multi-month__cell--muted"} ${
-                isToday(day) ? "oc-multi-month__cell--today" : ""
-              }`}
+              className={`oc-multi-month__cell ${isCurrentMonth ? "" : "oc-multi-month__cell--muted"} ${isToday(day) ? "oc-multi-month__cell--today" : ""
+                }`}
               onClick={() => onDateClick?.(day)}
             >
               <span className="oc-multi-month__day">{format(day, "d")}</span>

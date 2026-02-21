@@ -52,7 +52,7 @@ Goal: ship a fully open-source alternative to FullCalendar React with premium-eq
 
 ## Phase 5: International + Platform
 
-- [ ] Locale expansion and translation packs
+- [x] Locale expansion and translation packs
 - [ ] Time zone conversion strategy
 - [x] TypeScript support
 - [x] React component

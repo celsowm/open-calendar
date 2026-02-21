@@ -11,14 +11,23 @@ export {
   fetchFromSources,
   clearCache
 } from "./core/event-sources";
+export {
+  DEFAULT_LOCALE,
+  PT_BR_LOCALE,
+  ES_LOCALE,
+  DEFAULT_MESSAGES,
+  getLocaleData
+} from "./locales";
 export type {
   BusinessHoursInput,
   CalendarEvent,
   CalendarEventInput,
+  CalendarLocale,
   CalendarProps,
   CalendarView,
   CustomViewConfig,
   CustomViewProps,
+  CommonViewProps,
   DateSelectInfo,
   EventDisplay,
   EventDropInfo,
@@ -29,5 +38,6 @@ export type {
   FunctionEventSourceConfig,
   HttpEventSourceConfig,
   JsonFeedEventSourceConfig,
-  Resource
+  Resource,
+  TranslationMessages
 } from "./types";

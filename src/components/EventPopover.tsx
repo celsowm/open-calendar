@@ -9,17 +9,20 @@ interface EventPopoverProps {
   events: CalendarEvent[];
   anchorRect: DOMRect;
   locale?: Locale;
+  closeLabel?: string;
   onEventClick?: (event: CalendarEvent) => void;
   onEventMouseEnter?: (info: EventMouseInfo) => void;
   onEventMouseLeave?: (info: EventMouseInfo) => void;
   onClose: () => void;
 }
 
+
 export function EventPopover({
   date,
   events,
   anchorRect,
   locale,
+  closeLabel = "Close",
   onEventClick,
   onEventMouseEnter,
   onEventMouseLeave,
@@ -76,7 +79,7 @@ export function EventPopover({
           type="button"
           className="oc-popover__close"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={closeLabel}
         >
           ✕
         </button>

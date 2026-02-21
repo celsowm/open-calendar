@@ -5,7 +5,7 @@ import { areSameDay, getWeekNumber } from "../core/date";
 import { eventIntersectsDay } from "../core/events";
 import { EventPopover } from "../components/EventPopover";
 import { EventItem } from "../components/EventItem";
-import type { CalendarEvent, EventMouseInfo } from "../types";
+import type { CalendarEvent, CommonViewProps, EventMouseInfo } from "../types";
 
 interface PopoverState {
   date: Date;
@@ -13,17 +13,9 @@ interface PopoverState {
   anchorRect: DOMRect;
 }
 
-interface MonthViewProps {
-  date: Date;
-  events: CalendarEvent[];
-  locale?: Locale;
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+interface MonthViewProps extends CommonViewProps {
   weekNumbers: boolean;
   navLinks: boolean;
-  onDateClick?: (date: Date) => void;
-  onEventClick?: (event: CalendarEvent) => void;
-  onEventMouseEnter?: (info: EventMouseInfo) => void;
-  onEventMouseLeave?: (info: EventMouseInfo) => void;
   onNavLinkClick?: (date: Date) => void;
 }
 
@@ -56,7 +48,7 @@ export function MonthView({
   const closePopover = useCallback(() => setPopover(null), []);
   const firstCell = startOfWeek(startOfMonth(date), { weekStartsOn });
   const dayLabels = Array.from({ length: 7 }, (_, index) =>
-    format(addDays(firstCell, index), "EEE", { locale })
+    format(addDays(firstCell, index), "EEE", { locale: locale.dateFnsLocale })
   );
   const monthDays = Array.from({ length: 42 }, (_, index) => addDays(firstCell, index));
   const cols = weekNumbers ? 8 : 7;
@@ -64,7 +56,7 @@ export function MonthView({
   return (
     <section className="oc-month" style={{ "--oc-month-cols": String(cols) } as React.CSSProperties}>
       <div className="oc-month__header">
-        {weekNumbers && <div className="oc-month__header-cell oc-month__week-header">W</div>}
+        {weekNumbers && <div className="oc-month__header-cell oc-month__week-header">{locale.messages.week.charAt(0)}</div>}
         {dayLabels.map((label, index) => (
           <div key={`${label}-${index}`} className="oc-month__header-cell">
             {label}
@@ -89,51 +81,50 @@ export function MonthView({
                 </div>
               )}
               <article
-                className={`oc-day-cell ${isCurrentMonth ? "" : "oc-day-cell--muted"} ${
-                  isToday(day) ? "oc-day-cell--today" : ""
-                }`}
+                className={`oc-day-cell ${isCurrentMonth ? "" : "oc-day-cell--muted"} ${isToday(day) ? "oc-day-cell--today" : ""
+                  }`}
                 onClick={() => onDateClick?.(day)}
               >
-              <div className="oc-day-cell__date-wrap">
-                {navLinks ? (
-                  <button
-                    type="button"
-                    className="oc-day-cell__date oc-link-reset"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      onNavLinkClick?.(day);
-                    }}
-                  >
-                    {format(day, "d")}
-                  </button>
-                ) : (
-                  <span className="oc-day-cell__date">{format(day, "d")}</span>
-                )}
-              </div>
+                <div className="oc-day-cell__date-wrap">
+                  {navLinks ? (
+                    <button
+                      type="button"
+                      className="oc-day-cell__date oc-link-reset"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onNavLinkClick?.(day);
+                      }}
+                    >
+                      {format(day, "d")}
+                    </button>
+                  ) : (
+                    <span className="oc-day-cell__date">{format(day, "d")}</span>
+                  )}
+                </div>
 
-              <div className="oc-day-cell__events">
-                {visibleEvents.map((event) => (
-                  <EventItem
-                    key={`${event.id}-${event.start.toISOString()}`}
-                    event={event}
-                    prefix={!areSameDay(event.start, day) ? "-> " : undefined}
-                    onClick={onEventClick}
-                    onMouseEnter={onEventMouseEnter}
-                    onMouseLeave={onEventMouseLeave}
-                  />
-                ))}
+                <div className="oc-day-cell__events">
+                  {visibleEvents.map((event) => (
+                    <EventItem
+                      key={`${event.id}-${event.start.toISOString()}`}
+                      event={event}
+                      prefix={!areSameDay(event.start, day) ? "-> " : undefined}
+                      onClick={onEventClick}
+                      onMouseEnter={onEventMouseEnter}
+                      onMouseLeave={onEventMouseLeave}
+                    />
+                  ))}
 
-                {overflowCount > 0 ? (
-                  <button
-                    type="button"
-                    className="oc-more-label"
-                    onClick={(e) => handleMoreClick(e, day, dayEvents)}
-                  >
-                    +{overflowCount} more
-                  </button>
-                ) : null}
-              </div>
-            </article>
+                  {overflowCount > 0 ? (
+                    <button
+                      type="button"
+                      className="oc-more-label"
+                      onClick={(e) => handleMoreClick(e, day, dayEvents)}
+                    >
+                      +{overflowCount} {locale.messages.moreEvents}
+                    </button>
+                  ) : null}
+                </div>
+              </article>
             </Fragment>
           );
         })}
@@ -144,7 +135,8 @@ export function MonthView({
           date={popover.date}
           events={popover.events}
           anchorRect={popover.anchorRect}
-          locale={locale}
+          locale={locale.dateFnsLocale}
+          closeLabel={locale.messages.close}
           onEventClick={onEventClick}
           onEventMouseEnter={onEventMouseEnter}
           onEventMouseLeave={onEventMouseLeave}
