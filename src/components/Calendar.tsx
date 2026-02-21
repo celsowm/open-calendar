@@ -56,7 +56,8 @@ function getAvailableViews(props: CalendarProps, localeData: CalendarLocale) {
   const views: Array<{ label: string; value: CalendarView }> = [
     { label: messages.viewMonth, value: "month" },
     { label: messages.viewWeek, value: "timeGridWeek" },
-    { label: messages.viewDay, value: "timeGridDay" }
+    { label: messages.viewDay, value: "timeGridDay" },
+    { label: messages.viewList, value: "list" }
   ];
 
   if (props.resources && props.resources.length > 0) {

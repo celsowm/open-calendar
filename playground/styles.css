@@ -1,163 +1,217 @@
 body {
   margin: 0;
-  background:
-    radial-gradient(circle at 10% -20%, #d6f3ff 0%, transparent 38%),
-    radial-gradient(circle at 100% 0%, #d6ffed 0%, transparent 33%),
-    #ecf0f8;
-  color: #0f1524;
+  background: #f2f2f4;
+  color: #1a2a40;
   font-family: "Segoe UI", "Avenir Next", "Trebuchet MS", sans-serif;
 }
 
-.playground-shell {
-  max-width: 1240px;
+.fc-playground {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 24px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 32px 16px 28px;
+  padding: 34px 28px;
+  min-height: 100vh;
 }
 
-.playground-hero {
-  margin-bottom: 16px;
+.fc-demos__title {
+  margin: 0 0 28px;
+  font-size: 42px;
+  line-height: 1;
+  font-weight: 700;
+  color: #132848;
 }
 
-.playground-hero h1 {
-  margin: 0;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
-}
-
-.playground-hero p {
-  margin: 6px 0 0;
-  color: #4d566e;
-}
-
-.playground-view-picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.playground-api-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.playground-view-btn {
-  border: 1px solid #d5dcea;
-  border-radius: 999px;
-  background: #ffffff;
-  padding: 6px 14px;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  color: #0f1524;
-}
-
-.playground-view-btn--active {
-  background: #0d9e8b;
-  border-color: #0d9e8b;
-  color: #ffffff;
-}
-
-.playground-status {
-  margin-top: 12px;
-  border: 1px solid #d5dcea;
-  border-radius: 12px;
-  background: #ffffff;
-  padding: 10px 12px;
-  font-size: 0.92rem;
-}
-
-/* Custom 3-Day View Styles */
-.oc-three-day-view {
+.fc-demos__nav {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  gap: 8px;
+  padding: 10px 0;
+  background: #3f4654;
+  border-radius: 2px;
+}
+
+.fc-demos__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #f4f7ff;
+  font-size: 30px;
+  font-size: clamp(14px, 1.05vw, 28px);
+  text-align: left;
+  padding: 11px 14px;
+  cursor: pointer;
+}
+
+.fc-demos__item:hover {
+  background: #4b5362;
+}
+
+.fc-demos__item span:last-child {
+  font-size: 28px;
+  line-height: 1;
+  color: #c3cad8;
+}
+
+.fc-calendar-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fc-calendar-skin {
+  --oc-bg: #ffffff;
+  --oc-surface: #ffffff;
+  --oc-border: #d2d2d2;
+  --oc-text: #182b4d;
+  --oc-muted: #182b4d;
+  --oc-brand: #102947;
+  --oc-brand-soft: #ecf1f8;
+  --oc-event: #2f80cc;
+  --oc-event-text: #ffffff;
+  --oc-shadow: none;
+
+  height: calc(100vh - 120px);
+  min-height: 680px;
+  border-radius: 0;
+  border-top: 4px solid #efb940;
+  background: #fff;
+}
+
+.fc-calendar-skin .oc-toolbar {
   background: #ffffff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.oc-three-day-view__header {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border-bottom: 1px solid #e5e7eb;
-  background: #f9fafb;
-}
-
-.oc-three-day-view__header-cell {
-  padding: 12px;
-  text-align: center;
-  border-right: 1px solid #e5e7eb;
-}
-
-.oc-three-day-view__header-cell:last-child {
-  border-right: none;
-}
-
-.oc-three-day-view__day-name {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-}
-
-.oc-three-day-view__day-number {
-  display: block;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #111827;
-  margin-top: 4px;
-}
-
-.oc-three-day-view__body {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  flex: 1;
-  overflow-y: auto;
-}
-
-.oc-three-day-view__day-column {
-  padding: 8px;
-  border-right: 1px solid #e5e7eb;
-  min-height: 200px;
-}
-
-.oc-three-day-view__day-column:last-child {
-  border-right: none;
-}
-
-.oc-three-day-view__empty {
-  color: #9ca3af;
-  font-size: 0.875rem;
-  text-align: center;
   padding: 16px;
 }
 
-.oc-three-day-view__event {
-  padding: 8px 10px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  cursor: pointer;
+.fc-calendar-skin .oc-toolbar__title {
+  font-size: clamp(22px, 1.95vw, 34px);
+  font-weight: 500;
+  color: #122749;
+}
+
+.fc-calendar-skin .oc-toolbar__nav .oc-btn:nth-child(1) {
+  order: 3;
+}
+
+.fc-calendar-skin .oc-toolbar__nav .oc-btn:nth-child(2) {
+  order: 1;
+}
+
+.fc-calendar-skin .oc-toolbar__nav .oc-btn:nth-child(3) {
+  order: 2;
+}
+
+.fc-calendar-skin .oc-btn {
+  border-radius: 4px;
+  border-color: #34465f;
+  background: #132f50;
   color: #ffffff;
-  font-size: 0.85rem;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.52rem 0.78rem;
 }
 
-.oc-three-day-view__event:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+.fc-calendar-skin .oc-btn--ghost {
+  background: #6b7380;
+  border-color: #6b7380;
 }
 
-.oc-three-day-view__event-time {
-  display: block;
-  font-size: 0.7rem;
-  opacity: 0.9;
-  margin-bottom: 2px;
+.fc-calendar-skin .oc-btn--icon {
+  background: #2e4056;
+  border-color: #2e4056;
 }
 
-.oc-three-day-view__event-title {
-  display: block;
-  font-weight: 600;
+.fc-calendar-skin .oc-btn--active {
+  background: #112d4d;
+  border-color: #112d4d;
+}
+
+.fc-calendar-skin .oc-month__header-cell {
+  color: #182b4d;
+  text-transform: none;
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  padding: 8px 6px 6px;
+}
+
+.fc-calendar-skin .oc-day-cell {
+  gap: 2px;
+  padding: 3px 4px;
+  background: #ffffff;
+}
+
+.fc-calendar-skin .oc-day-cell__date {
+  font-size: 0.88rem;
+  color: #182b4d;
+  font-weight: 400;
+}
+
+.fc-calendar-skin .oc-day-cell--today {
+  background: #f5f0da;
+}
+
+.fc-calendar-skin .oc-day-cell--muted .oc-day-cell__date {
+  color: #9ca4b1;
+}
+
+.fc-calendar-skin .oc-event-chip {
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 0.78rem;
+}
+
+.fc-playground-hints {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.fc-hint-btn {
+  border: 1px solid #cad1db;
+  border-radius: 4px;
+  background: #fff;
+  color: #283d58;
+  font-size: 0.8rem;
+  text-transform: lowercase;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.fc-playground-status {
+  color: #45576f;
+  font-size: 0.82rem;
+  margin-left: auto;
+}
+
+@media (max-width: 1050px) {
+  .fc-playground {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 18px 14px 20px;
+  }
+
+  .fc-demos__title {
+    margin-bottom: 12px;
+    font-size: 34px;
+  }
+
+  .fc-demos__nav {
+    gap: 4px;
+  }
+
+  .fc-calendar-skin {
+    height: 72vh;
+    min-height: 520px;
+  }
+
+  .fc-playground-status {
+    width: 100%;
+    margin-left: 0;
+  }
 }
