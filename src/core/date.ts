@@ -1,6 +1,7 @@
 import {
   addDays,
   addMonths,
+  addYears,
   endOfDay,
   endOfMonth,
   endOfWeek,
@@ -16,8 +17,28 @@ export interface DateRange {
   end: Date;
 }
 
+export interface DateDuration {
+  years?: number;
+  months?: number;
+  days?: number;
+}
+
 export function toDate(value: DateInput): Date {
   return value instanceof Date ? new Date(value.getTime()) : new Date(value);
+}
+
+export function addDuration(date: Date, duration: DateDuration): Date {
+  let result = new Date(date);
+  if (duration.days) {
+    result = addDays(result, duration.days);
+  }
+  if (duration.months) {
+    result = addMonths(result, duration.months);
+  }
+  if (duration.years) {
+    result = addYears(result, duration.years);
+  }
+  return result;
 }
 
 export function getViewRange(

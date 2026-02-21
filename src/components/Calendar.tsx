@@ -178,6 +178,10 @@ export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: 
     setInternalEvents(prev => prev.filter(e => String(e.id) !== eventId));
   };
   
+  const deleteAllEvents = () => {
+    setInternalEvents([]);
+  };
+  
   const addNewEventSource = (source: EventSource) => {
     setInternalEventSources(prev => {
       const newSources = [...prev];
@@ -199,9 +203,25 @@ export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: 
   };
 
   // Create and expose the API
+  const refetchEvents = () => {
+    fetchForRange(visibleRange.start, visibleRange.end);
+  };
+
   const apiRef = useMemo(
-    () => new CalendarApi(state, getVisibleRange, getTitle, () => normalizedEvents, addNewEvent, deleteEvent, internalEventSources, addNewEventSource, deleteEventSource),
-    [state, visibleRange, title, normalizedEvents, internalEventSources]
+    () => new CalendarApi(
+      state, 
+      getVisibleRange, 
+      getTitle, 
+      () => normalizedEvents, 
+      addNewEvent, 
+      deleteEvent,
+      deleteAllEvents,
+      internalEventSources, 
+      addNewEventSource, 
+      deleteEventSource,
+      refetchEvents
+    ),
+    [state, visibleRange, title, normalizedEvents, internalEventSources, refetchEvents]
   );
 
   // Expose API via ref

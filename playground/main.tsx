@@ -122,6 +122,30 @@ function PlaygroundApp() {
     setMessage(`Total events: ${events?.length ?? 0}`);
   };
 
+  const handleApiIncrementDate = () => {
+    calendarRef.current?.incrementDate({ months: 1 });
+  };
+
+  const handleApiGetEventById = () => {
+    const events = calendarRef.current?.getEvents();
+    if (events && events.length > 0) {
+      const event = calendarRef.current?.getEventById(events[0].id);
+      setMessage(`Event found: ${event?.title ?? 'not found'}`);
+    } else {
+      setMessage('No events to search');
+    }
+  };
+
+  const handleApiRemoveAllEvents = () => {
+    calendarRef.current?.removeAllEvents();
+    setMessage('All events removed');
+  };
+
+  const handleApiRefetchEvents = () => {
+    calendarRef.current?.refetchEvents();
+    setMessage('Events refetched');
+  };
+
   return (
     <main className="playground-shell">
       <section className="playground-hero">
@@ -161,6 +185,10 @@ function PlaygroundApp() {
         <button className="playground-view-btn" onClick={handleApiNext}>Next</button>
         <button className="playground-view-btn" onClick={handleApiGotoDate}>Go to June 15, 2025</button>
         <button className="playground-view-btn" onClick={handleApiGetEvents}>Get Events</button>
+        <button className="playground-view-btn" onClick={handleApiIncrementDate}>+1 Month</button>
+        <button className="playground-view-btn" onClick={handleApiGetEventById}>Get First Event</button>
+        <button className="playground-view-btn" onClick={handleApiRemoveAllEvents}>Remove All</button>
+        <button className="playground-view-btn" onClick={handleApiRefetchEvents}>Refetch</button>
       </div>
 
       <Calendar

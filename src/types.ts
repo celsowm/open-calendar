@@ -308,6 +308,8 @@ export interface CalendarApi {
   getDate(): Date;
   /** Navigate to a specific date */
   gotoDate(date: DateInput): void;
+  /** Move the current date forward or backward by the given duration */
+  incrementDate(duration: { years?: number; months?: number; days?: number }): void;
   /** Go to the previous period */
   prev(): void;
   /** Go to the next period */
@@ -318,14 +320,20 @@ export interface CalendarApi {
   changeView(view: CalendarView): void;
   /** Get all current events */
   getEvents(): CalendarEvent[];
+  /** Get a specific event by its ID */
+  getEventById(id: string): CalendarEvent | undefined;
   /** Add a new event */
   addEvent(event: CalendarEventInput): string;
   /** Remove an event by ID */
   removeEvent(eventId: string): void;
+  /** Remove all events */
+  removeAllEvents(): void;
   /** Get all event sources */
   getEventSources(): EventSource[];
   /** Add a new event source */
   addEventSource(source: EventSource): void;
   /** Remove an event source */
   removeEventSource(source: EventSource): void;
+  /** Refetch events from all event sources */
+  refetchEvents(): void;
 }
