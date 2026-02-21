@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { format, addDays } from "date-fns";
 import { Calendar, DEFAULT_LOCALE, PT_BR_LOCALE, ES_LOCALE } from "../src";
-import type { CalendarView, CustomViewConfig, CustomViewProps, CalendarLocale } from "../src/types";
+import type { CalendarView, CustomViewConfig, CustomViewProps, CalendarLocale, CalendarApi } from "../src/types";
 import { demoEvents, demoResources } from "./demo-events";
 import "../src/styles/open-calendar.css";
 import "./styles.css";
@@ -93,6 +93,34 @@ function PlaygroundApp() {
   const [message, setMessage] = useState("Click on an event or time slot.");
   const [view, setView] = useState<CalendarView>("month");
   const [locale, setLocale] = useState<CalendarLocale>(DEFAULT_LOCALE);
+  const calendarRef = useRef<CalendarApi>(null);
+
+  const handleReady = (api: CalendarApi) => {
+    console.log("Calendar API ready!", api);
+    console.log("Current view:", api.getView());
+    console.log("Current date:", api.getDate());
+  };
+
+  const handleApiPrev = () => {
+    calendarRef.current?.prev();
+  };
+
+  const handleApiNext = () => {
+    calendarRef.current?.next();
+  };
+
+  const handleApiToday = () => {
+    calendarRef.current?.today();
+  };
+
+  const handleApiGotoDate = () => {
+    calendarRef.current?.gotoDate(new Date(2025, 5, 15)); // June 15, 2025
+  };
+
+  const handleApiGetEvents = () => {
+    const events = calendarRef.current?.getEvents();
+    setMessage(`Total events: ${events?.length ?? 0}`);
+  };
 
   return (
     <main className="playground-shell">
@@ -127,7 +155,16 @@ function PlaygroundApp() {
         </div>
       </div>
 
+      <div className="playground-api-controls">
+        <button className="playground-view-btn" onClick={handleApiPrev}>Prev</button>
+        <button className="playground-view-btn" onClick={handleApiToday}>Today</button>
+        <button className="playground-view-btn" onClick={handleApiNext}>Next</button>
+        <button className="playground-view-btn" onClick={handleApiGotoDate}>Go to June 15, 2025</button>
+        <button className="playground-view-btn" onClick={handleApiGetEvents}>Get Events</button>
+      </div>
+
       <Calendar
+        ref={calendarRef}
         events={demoEvents}
         resources={demoResources}
         initialView={view}
@@ -142,6 +179,7 @@ function PlaygroundApp() {
         businessHours={[
           { daysOfWeek: [1, 2, 3, 4, 5], startTime: "09:00", endTime: "18:00" }
         ]}
+        onReady={handleReady}
         onEventClick={(event) => setMessage(`Event: ${event.title}`)}
         onDateClick={(date) => setMessage(`Date click: ${date.toLocaleString()}`)}
         onEventDrop={(info) =>

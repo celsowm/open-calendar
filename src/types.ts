@@ -203,6 +203,8 @@ export interface CalendarProps {
   listRange?: number;
   /** Custom view configurations for extending the calendar with user-defined views */
   customViews?: CustomViewConfig[];
+  /** Called when the calendar is ready, receives the CalendarApi */
+  onReady?: (api: CalendarApi) => void;
 }
 
 /** Event Source Types */
@@ -288,4 +290,42 @@ export interface ToolbarProps {
   onPrev: () => void;
   onNext: () => void;
   onViewChange: (view: CalendarView) => void;
+}
+
+/** Calendar API Types */
+
+export interface CalendarViewInfo {
+  type: CalendarView;
+  title: string;
+  start: Date;
+  end: Date;
+}
+
+export interface CalendarApi {
+  /** Get the current view information */
+  getView(): CalendarViewInfo;
+  /** Get the current date */
+  getDate(): Date;
+  /** Navigate to a specific date */
+  gotoDate(date: DateInput): void;
+  /** Go to the previous period */
+  prev(): void;
+  /** Go to the next period */
+  next(): void;
+  /** Go to today */
+  today(): void;
+  /** Change the current view */
+  changeView(view: CalendarView): void;
+  /** Get all current events */
+  getEvents(): CalendarEvent[];
+  /** Add a new event */
+  addEvent(event: CalendarEventInput): string;
+  /** Remove an event by ID */
+  removeEvent(eventId: string): void;
+  /** Get all event sources */
+  getEventSources(): EventSource[];
+  /** Add a new event source */
+  addEventSource(source: EventSource): void;
+  /** Remove an event source */
+  removeEventSource(source: EventSource): void;
 }

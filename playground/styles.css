@@ -35,6 +35,13 @@ body {
   margin-bottom: 12px;
 }
 
+.playground-api-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
 .playground-view-btn {
   border: 1px solid #d5dcea;
   border-radius: 999px;

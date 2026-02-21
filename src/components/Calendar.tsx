@@ -1,8 +1,9 @@
 import clsx from "clsx";
 import { addMinutes, format, startOfDay } from "date-fns";
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef, type CSSProperties, type Ref } from "react";
 import { getViewRange } from "../core/date";
 import { expandRecurringEvents, normalizeEvents } from "../core/events";
+import { CalendarApi } from "../core/calendar-api";
 import { useCalendarState } from "../hooks/useCalendarState";
 import { useDrag } from "../hooks/useDrag";
 import { useResize } from "../hooks/useResize";
@@ -16,7 +17,7 @@ import { DayGridView } from "../views/DayGridView";
 import { MultiMonthView } from "../views/MultiMonthView";
 import { TimelineView } from "../views/TimelineView";
 import { ResourceTimeGridView } from "../views/ResourceTimeGridView";
-import type { BuiltInViewType, CalendarLocale, CalendarProps, CalendarView, CustomViewConfig } from "../types";
+import type { BuiltInViewType, CalendarLocale, CalendarProps, CalendarView, CustomViewConfig, CalendarEventInput, CalendarApi as ICalendarApi, EventSource } from "../types";
 import { getLocaleData, DEFAULT_MESSAGES } from "../locales";
 import type { Locale } from "date-fns";
 
@@ -76,7 +77,7 @@ function getAvailableViews(props: CalendarProps, localeData: CalendarLocale) {
   return views;
 }
 
-export function Calendar(props: CalendarProps) {
+export const Calendar = forwardRef(function Calendar(props: CalendarProps, ref: Ref<ICalendarApi>) {
   const {
     events: staticEvents = [],
     eventSources = [],
@@ -101,10 +102,15 @@ export function Calendar(props: CalendarProps) {
     onEventMouseLeave,
     resources = [],
     listRange = 30,
-    customViews = []
+    customViews = [],
+    onReady
   } = props;
 
   const localeData = useMemo(() => getLocaleData(locale), [locale]);
+
+  // Internal state for events and event sources (can be modified via API)
+  const [internalEvents, setInternalEvents] = useState<CalendarEventInput[]>(staticEvents);
+  const [internalEventSources, setInternalEventSources] = useState(eventSources);
 
   const state = useCalendarState({ initialDate, initialView, customViews });
   const { dragState, handlePointerDown } = useDrag({ enabled: editable, onEventDrop });
@@ -116,8 +122,8 @@ export function Calendar(props: CalendarProps) {
 
   // Event sources hook for dynamic event fetching
   const { events: sourceEvents, isLoading, error, fetchForRange } = useEventSources({
-    sources: eventSources,
-    initialEvents: staticEvents
+    sources: internalEventSources,
+    initialEvents: internalEvents
   });
 
   // Normalize all events (from static + sources)
@@ -139,10 +145,10 @@ export function Calendar(props: CalendarProps) {
 
   // Fetch events from sources when visible range changes
   useEffect(() => {
-    if (eventSources.length > 0) {
+    if (internalEventSources.length > 0) {
       fetchForRange(visibleRange.start, visibleRange.end);
     }
-  }, [eventSources, visibleRange.start, visibleRange.end, fetchForRange]);
+  }, [internalEventSources, visibleRange.start, visibleRange.end, fetchForRange]);
 
   const visibleEvents = useMemo(
     () => expandRecurringEvents(normalizedEvents, visibleRange.start, visibleRange.end),
@@ -155,6 +161,58 @@ export function Calendar(props: CalendarProps) {
   );
 
   const availableViews = useMemo(() => getAvailableViews(props, localeData), [props.resources, props.customViews, localeData]);
+
+  // Helper functions for the API
+  const getVisibleRange = () => visibleRange;
+  const getTitle = () => title;
+  const getAllEvents = () => sourceEvents;
+  
+  const addNewEvent = (event: CalendarEventInput): string => {
+    const id = event.id ?? `event-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const eventWithId = { ...event, id: String(id) };
+    setInternalEvents(prev => [...prev, eventWithId]);
+    return String(id);
+  };
+  
+  const deleteEvent = (eventId: string) => {
+    setInternalEvents(prev => prev.filter(e => String(e.id) !== eventId));
+  };
+  
+  const addNewEventSource = (source: EventSource) => {
+    setInternalEventSources(prev => {
+      const newSources = [...prev];
+      newSources.push(source);
+      return newSources;
+    });
+  };
+  
+  const deleteEventSource = (source: EventSource) => {
+    setInternalEventSources(prev => {
+      const index = prev.findIndex(s => JSON.stringify(s) === JSON.stringify(source));
+      if (index >= 0) {
+        const newSources = [...prev];
+        newSources.splice(index, 1);
+        return newSources;
+      }
+      return prev;
+    });
+  };
+
+  // Create and expose the API
+  const apiRef = useMemo(
+    () => new CalendarApi(state, getVisibleRange, getTitle, () => normalizedEvents, addNewEvent, deleteEvent, internalEventSources, addNewEventSource, deleteEventSource),
+    [state, visibleRange, title, normalizedEvents, internalEventSources]
+  );
+
+  // Expose API via ref
+  useImperativeHandle(ref, () => apiRef, [apiRef]);
+
+  // Call onReady callback when API is ready
+  useEffect(() => {
+    if (onReady) {
+      onReady(apiRef);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const navLinkHandler = (clickedDate: Date) => {
     state.setCurrentDate(clickedDate);
@@ -349,4 +407,4 @@ export function Calendar(props: CalendarProps) {
       </div>
     </div>
   );
-}
+});

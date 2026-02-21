@@ -1,4 +1,5 @@
 export { Calendar } from "./components/Calendar";
+export { CalendarApi } from "./core/calendar-api";
 export { defineOpenCalendarElement, OpenCalendarElement } from "./web-component/open-calendar-element";
 export { useEventSources } from "./hooks/useEventSources";
 export type { UseEventSourcesOptions, UseEventSourcesResult } from "./hooks/useEventSources";
@@ -25,6 +26,7 @@ export type {
   CalendarLocale,
   CalendarProps,
   CalendarView,
+  CalendarViewInfo,
   CustomViewConfig,
   CustomViewProps,
   CommonViewProps,
